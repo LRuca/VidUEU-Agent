@@ -12,7 +12,7 @@ def test_root_data_ignore_does_not_hide_vendored_bagel_data(tmp_path):
     root=Path(__file__).resolve().parents[1]
     subprocess.run(['git','init',str(tmp_path)],check=True,capture_output=True)
     (tmp_path/'.gitignore').write_bytes((root/'.gitignore').read_bytes())
-    result=subprocess.run(['git','-C',str(tmp_path),'check-ignore','--stdin'],
-                          input='data/private.jsonl\nvendor/bagel/data/dataset_base.py\n',
-                          text=True,capture_output=True)
-    assert result.stdout.splitlines()==['data/private.jsonl']
+    result=subprocess.run(['git','-C',str(tmp_path),'check-ignore','--stdin','-z'],
+                          input=b'data/private.jsonl\0vendor/bagel/data/dataset_base.py\0',
+                          capture_output=True)
+    assert result.stdout.split(b'\0')==[b'data/private.jsonl',b'']
