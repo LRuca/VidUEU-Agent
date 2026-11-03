@@ -1,0 +1,26 @@
+version: 1
+recipe: bagel_editing
+paper:
+  model: BAGEL-7B-MoT
+  epochs: 1
+  learning_rate: 0.00005
+  optimizer: AdamW
+  scheduler: cosine
+  freeze: [vae_encoder, vae_decoder, vit_encoder]
+  lora_r: 16
+  lora_alpha: 32
+  fully_train: [llm2vae, vae2llm, time_embedder]
+  losses: [text_cross_entropy, image_mse]
+  reference_gpus: 8
+deployment:
+  python: null
+  adapter: null
+  source_revision: null
+  model_path: null
+  input_manifest: null
+  output: null
+  gpus: []
+  steps_per_epoch: null
+  image_preprocessing: null
+  token_packing: null
+  adapter_arguments: []

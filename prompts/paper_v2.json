@@ -1,0 +1,323 @@
+{
+  "version": "paper_v2",
+  "paper_sha256": "d13a37dbee48029c39f40b4696f4367166fee5fdfe73b640705843b02cfb9cdb",
+  "legacy_sources": {
+    "toolplan_quality": {
+      "pdf_pages": [
+        22
+      ],
+      "reference": "Fig.9"
+    },
+    "quality_toolcall": {
+      "pdf_pages": [
+        45
+      ],
+      "reference": "Fig.27"
+    },
+    "tool_signal_semanticizer": {
+      "pdf_pages": [
+        23,
+        31
+      ],
+      "reference": "Fig.10; Table 9"
+    },
+    "llm_value_analyse": {
+      "pdf_pages": [
+        24
+      ],
+      "reference": "Fig.11"
+    },
+    "quota_plan": {
+      "pdf_pages": [
+        25
+      ],
+      "reference": "Fig.12"
+    },
+    "chapter_summary_generation": {
+      "pdf_pages": [
+        20
+      ],
+      "reference": "Fig.6"
+    },
+    "video_summary_generation": {
+      "pdf_pages": [
+        20
+      ],
+      "reference": "Fig.6"
+    },
+    "t3_local": {
+      "pdf_pages": [
+        21,
+        26
+      ],
+      "reference": "Fig.8/13"
+    },
+    "t4_generation_prompts": {
+      "pdf_pages": [
+        28
+      ],
+      "reference": "Fig.15"
+    },
+    "t4_structured": {
+      "pdf_pages": [
+        28,
+        30,
+        32
+      ],
+      "reference": "Fig.15; Appendix D"
+    },
+    "umm_task_prompts": {
+      "pdf_pages": [
+        28,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "reference": "Fig.15; Appendix D"
+    }
+  },
+  "prompts": {
+    "paper/frame_caption": {
+      "text": "You verify the caption of ONE keyframe in the current video segment.\nThe image is primary evidence. The original caption is an imperfect hypothesis, not ground truth.\nDescribe concrete visible entities, image-frame locations, object states, and visible interactions in 1-2 factual English sentences.\nSeparate a held container from a tool touching or positioned above food. Do not say liquid flows from a container unless that flow is visible.\nDo not infer preparation versus serving, future cooking, identity, intent, hidden causes, or off-screen events.\nA still image shows a state, not an entire action sequence. Record unresolved relationships in uncertainties instead of asserting them in the caption.\nPreserve readable text literally if certain; omit uncertain text rather than invent it.\nReturn STRICT JSON: {\"caption\": \"...\", \"observations\": [\"visible fact\"], \"uncertainties\": [\"unresolved detail\"], \"unsupported_original_claims\": [\"claim\"]}.\nORIGINAL CAPTION: $original_caption\nFRAME: $frame_id\nPrioritize the interacting foreground objects over generic background description. Inventory each distinct tool/container separately, even when a tool overlaps a container. Locate them with IMAGE-left/right/center and a stable visible anchor. Do not use anatomical left/right. Describe each tool position as a state; do not describe one tool as manipulating another unless the interaction is visible. Use a broad object name when subtype is uncertain.",
+      "paper": {
+        "pdf_pages": [
+          5,
+          26,
+          48
+        ],
+        "reference": "Section 3.1.3; Fig.13; Fig.29"
+      },
+      "adaptations": "Caption verification against the original bound image; original caption retained; no new task gate"
+    },
+    "t3_local/pair_transition": {
+      "text": "You analyze two consecutive keyframes A -> B from the current video segment.\nWrite exactly ONE line describing meaningful visible changes. Images are primary evidence; captions and tool signals are secondary and imperfect.\nCompare the same visible entities and their image-frame positions or states in A and B. Inspect held objects and interacting tools separately.\nAn ongoing action in a caption does not prove that these two still images differ. Motion magnitude is not an action label.\nDescribe only visible changes affecting understanding: appearance/disappearance, position, rotation, open/closed or on/off state, exact readable text, camera/view, or shot boundary.\nIgnore compression noise, glare, exposure flicker and negligible blur. Never infer hidden causes, intentions, future stages or off-screen events.\nEach atomic edit has ONE target and ONE verb from: add, remove, move, rotate, open, close, turn on, turn off, change text, zoom, pan, tilt, cut.\nFor move, describe the observed A and B image-frame positions when identifiable; avoid anatomical left/right. Prefer zoom/pan/tilt for camera motion.\nA clear shot boundary is cut to new shot. Visible temporal changes do not automatically qualify as small controllable image edits; downstream tasks assess that separately.\nEdits(k) MUST equal the actual number of enumerated edits. If none are meaningful, output Edits(0): none.\nIf entity identity or change is uncertain, omit that edit and record the uncertainty. Do not force a change.\nVideo type: $video_type\nSegment summary: $summary\nModality advice: $advice\nCaptions (secondary): A: $cap_a; B: $cap_b\nFORMAT: Edits(k): 1) ...; 2) ... | Shot: <none/minor/scene_cut> | View: <none/minor/major> | Subject: <same/unclear/different> | Uncertainty: <none or short note>\nBefore writing edits, inventory the same objects in BOTH images. Match tools/containers by shape and location, not by a hand-side label. A cloth and a utensil may both remain present; displacement is not a tool replacement. For each proposed change, verify its source state in A and destination state in B directly from pixels. Prefer matching OBJECT positions over inferred changes of what a hand holds. Do not use anatomical left/right.",
+      "paper": {
+        "pdf_pages": [
+          26
+        ],
+        "reference": "Fig.13"
+      },
+      "adaptations": "Explicit container/tool distinction and uncertainty; image-coordinate state comparison; retains transition string interface"
+    },
+    "paper/signal_filter": {
+      "text": "You are a precise semantic filtering assistant.\nFilter each supplied semantic tool signal by its associated shot summary and frame caption.\nKeep only clearly supported, relevant, useful signals. Remove irrelevant, redundant, vague, unsupported, inconsistent or weakly related signals; remove if uncertain.\nTreat tools as imperfect auxiliary evidence. ASR is nearby speech, not visible text. Motion magnitude is not an action or importance label.\nDo not invent, rewrite or merge signals. Preserve exact OCR wording, spelling, numbers and newlines in retained evidence.\nReturn STRICT JSON: {\"retained\": [{\"id\": \"...\", \"reason\": \"...\"}], \"removed\": [{\"id\": \"...\", \"reason\": \"...\"}]}.\nClassify every supplied ID exactly once.\nSHOTS: $shots_json\nSIGNALS: $signals_json",
+      "paper": {
+        "pdf_pages": [
+          47
+        ],
+        "reference": "Fig.28"
+      },
+      "adaptations": "Stable signal IDs and immutable wording instead of returning rewritten signal strings; caption context included"
+    },
+    "paper/gate_c": {
+      "text": "You are a strict metadata-level admission judge for video-to-dataset generation.\nJudge the whole package using summaries, captions, retained tool signals and consecutive transitions. Check factual claims against the supplied images.\nThis metadata describes only the current input SEGMENT.\nApply ALL seven criteria:\n1. Grounded visual content: concrete visible entities, interactions, states, layouts, readable text or meaningful changes.\n2. Cross-level coherence: summaries, captions, images and transitions agree; a plausible summary cannot override contradictory image evidence.\n3. Dataset usefulness: enough support for at least one meaningful understanding, editing or unified task.\n4. Evidence density: distinct specific evidence; reject generic filler and uninformative near-duplicates.\n5. Tool reliability: tools are auxiliary; unsupported or contradictory signals cannot establish a fact.\n6. Temporal/structural value: meaningful progression, interactions, procedures, layouts or object relations. Static informative content can support understanding.\n7. Hallucination safety: reject metadata requiring invented identities, exact text, hidden causes, intentions, unobserved stage contrasts or future events.\nDistinguish held containers, interacting tools and visible liquid flow. Do not infer a pouring source merely from a held pot.\nJudge raw image quality only when it prevents metadata grounding.\nA transition explicitly marked call_failed or invalid is incomplete evidence, not a claim of no change; reject the incomplete package.\nReturn STRICT JSON: {\"decision\": \"accept\" or \"reject\", \"primary_reasons\": [2-4 concise reasons], \"summary_consistent\": true or false}.\nReject if summary_consistent is false.\nMETADATA: $metadata_json\nOnly the reviewed claims supplied in this package are judged. Earlier captions and summaries retained elsewhere are pre-verification hypotheses, not current claims. Uncertainty notes do not assert that an event occurred.",
+      "paper": {
+        "pdf_pages": [
+          48
+        ],
+        "reference": "Fig.29; Section 3.1.4"
+      },
+      "adaptations": "Explicit visual summary verification and segment scope; distinguishes failed observations from no change"
+    },
+    "paper/routing": {
+      "text": "You are a quota allocator for dataset instance generation.\nRoute the reviewed segment to the NINE paper task types. Multiple types may be suitable.\nUse ONLY the EVIDENCE PACK; tools are imperfect auxiliary evidence. Read S_SEGEMENT_SUM before concrete frame/transition evidence.\nFor every task give quota, reason, evidence_refs. Positive quota requires an existing S_* ID and relevant frame/transition IDs. Explain zero quotas.\nUse zero when support is insufficient; do not infer hidden causes or fill quotas with trivial questions.\nfine_grained_perception: visible single-image entities, attributes, relations or text, with a unique MCQ answer.\nsingle_image_reasoning: a visible-cue-supported inference about interaction, function or constraints, not an unknown stage or hidden intent.\nmulti_image_logic: at least two images with useful cross-image comparison or joint verification.\nlocalized_editing and grounded_edit_to_select: only supplied reviewed pairs with 1-2 small controllable atomic edits.\nunderstand_recall_generate_select: recall of a previously shown later detail and meaningful earlier-to-later change.\nstepwise_sequence and middle_step_gap: coherent distinct ordered states and supported adjacent changes.\ninstructional_future_sequence: at least two context states and real, grounded immediate future states.\nTemporal tasks require semantic state changes, not camera-only motion, cuts or redundant frames; they do not all require a MagicBrush edit pair.\nELIGIBLE flags are feasibility limits, not instructions to select every eligible task. Set zero if false; do not exceed limits.\nTASKS: $tasks_json\nLIMITS: $limits_json\nELIGIBLE: $eligible_json\nREVIEWED EDIT PAIRS (keyframe positions): $pairs_json\nEVIDENCE PACK:\n$evidence_text\nReturn STRICT JSON: {\"tasks\": {\"task_name\": {\"quota\": 0, \"reason\": \"...\", \"evidence_refs\": []}}, \"edit_pairs\": [{\"from\": 0, \"to\": 1}]}.\nInclude all nine task names; choose pairs only from the supplied list.",
+      "paper": {
+        "pdf_pages": [
+          6,
+          27,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "reference": "Section 3.2.2; Fig.14; Appendix D"
+      },
+      "adaptations": "Nine explicit template routes replace legacy benchmark quotas; task-specific temporal eligibility; quality before output count"
+    },
+    "t4_structured/llava_answer_rules": {
+      "text": "LLaVA answer rules:\n- Use 2-4 sentences: a supported conclusion followed by concrete visible cues.\n- Do not mention evidence IDs or tools in training text.\n- Do not infer unsupported details, hidden intent, future events or an unobserved preparation/serving stage.\n- Use image-frame spatial positions, never anatomical laterality.",
+      "paper": {
+        "pdf_pages": [
+          32
+        ],
+        "reference": "Appendix D Visual Reasoning"
+      },
+      "adaptations": "Unifies answer length with the paper"
+    },
+    "t4_structured/llava_reasoning_rules": {
+      "text": "Visual reasoning rules:\n- Require reasoning about visible interaction, function, constraint-based identification, image-frame spatial relations or an observable inconsistency.\n- The question premise and any contrast MUST be supported by this image alone.\n- Never ask why an unobserved alternative is not happening, infer a hidden intention, or guess what happened before or will happen next.\n- If support is insufficient, return fewer items, including an empty items list.\n- Identify the target clearly and justify the conclusion with relevant visible cues. Generic scene context is not proof of a specific causal claim.\n- The answer follows the 2-4 sentence rule; do not impose another length requirement.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          48
+        ],
+        "reference": "Appendix D Visual Reasoning; Fig.29"
+      },
+      "adaptations": "Removes unsupported intent/stage inference and conflicting two-sentence constraint"
+    },
+    "t4_generation_prompts/fewshot_bank/llava_bench": {
+      "text": "STYLE EXAMPLE (not evidence for the current image):\n{\"image_pos\": 0, \"category\": \"complex\", \"reasoning_category\": \"function\", \"question\": \"In the image, what function does the strainer over the bowl serve when liquid and solid pieces are visible inside it?\", \"gpt_answer\": \"It separates the solid pieces from the liquid. The visible mesh holds the pieces, while the bowl directly below catches liquid passing through.\", \"evidence_refs\": [\"F00_CAP\"]}\nUse this pattern only when equivalent concrete visible cues support the inference. Never copy the example's entities or assume an unobserved stage.",
+      "paper": {
+        "pdf_pages": [
+          32
+        ],
+        "reference": "Appendix D Visual Reasoning"
+      },
+      "adaptations": "Visible function example replaces prediction of leaving a place; legacy category preserved with paper semantic category"
+    },
+    "t4_structured/single_image_rules": {
+      "text": "Single-image rules:\n- A solver sees ONLY the image at that item's image_pos.\n- Use only the corresponding Fxx_* evidence to establish the answer. S_* is light background only.\n- Other frames, transitions, ASR or segment progression cannot supply a fact absent from this image.\n- Cite at least one original frame evidence ID for the same image_pos.\n- No before/after/earlier/later/next/previous, invisible stage/intent, or future-event premises.\n- Return fewer items if support is insufficient. Do not turn uncertainty into an assertion.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30,
+          32
+        ],
+        "reference": "Fig.15; Appendix D Understanding"
+      },
+      "adaptations": "Explicit per-item evidence scope and abstention"
+    },
+    "t4_structured/mmt_option_rules": {
+      "text": "MMT multiple-choice rules (SINGLE-CORRECT HARD):\n- Provide exactly ONE correct option; the other 3 must be plausible distractors.\n- All options must be the SAME type/granularity (all colors / all object types / all counts / etc.).\n- Distractors should be wrong by ONE key visual detail, not random.\n- Keep options similar length/style. No \"All of the above\" / \"None of the above\".\n\nCOUNTING POLICY (HARD — because exact counting is error-prone):\n- DO NOT ask exact-count questions by default.\n- You may ask an exact-count question ONLY if ALL conditions hold:\n  (1) The target set is CLOSED: \"fully visible in-frame\" AND clearly belongs to the set.\n  (2) Objects are NOT occluded and do NOT extend out of frame.\n  (3) The correct count is in {0,1,2} ONLY.\n  (4) The question explicitly states viewpoint reference if using left/right: \"from the camera viewpoint\".\n- If ANY condition is not satisfied, replace with a MORE ROBUST alternative:\n  * comparison\n  * threshold\n  * identification instead of count\n\nUNIQUENESS CHECK (HARD, internal only):\n- The correct option must be uniquely true.\n- If 2+ options could be true due to ambiguity, you MUST fix it by rewriting:\n  (a) tighten the question with extra anchors, OR\n  (b) rewrite options so only ONE matches the image.\n- Do this internally; output ONLY the final JSON.\n- Distractors must be mutually exclusive for THIS question; synonyms and subset/superset answers can make more than one option true.\n- A held object does not establish it as the source of a visible action. Verify the action premise.\n- Return fewer items or none if uniqueness cannot be established without changing the task.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30
+        ],
+        "reference": "Fig.15; Appendix D Fine-Grained Perception"
+      },
+      "adaptations": "Clarifies overlapping options and unsupported action premises"
+    },
+    "t4_structured/mmt_verifier": {
+      "text": "You are verifying MMT multiple-choice questions for SINGLE-IMAGE evaluation.\nGoal: reduce ambiguity and ensure EXACTLY ONE correct option.\n\nHard rules (MUST follow):\n- Each item is answerable from ONLY the image at image_pos.\n- There MUST be exactly ONE correct option among A/B/C/D.\n- Options must be same type/granularity; no multi-attribute mixes.\n- Question must be unambiguous: the target must be uniquely anchored (type + disambiguation anchor).\n- Do NOT use timeline/sequence language (before/after/earlier/later/next/previous).\n- Do NOT invent details beyond evidence.\n\n- category MUST be one of: $mmt_allowed_categories_json.\n- l2-category MUST be one of: $mmt_allowed_l2_json.\n\n- If an item uses anatomical/person-relative left/right (e.g., \"person's left hand\"), you MUST NOT convert it to image-left/right.\n- You may only fix it by rewriting into a screen-position description WITHOUT claiming anatomical side,\n  e.g., \"the hand visible on the left side of the image\" + one extra anchor.\n- If you cannot fix without semantic change or invention, set ok=false.\n\nWhat you can do:\n- If the item is already good: ok=true, fixed_item can be omitted or identical.\n- If ambiguous but fixable: ok=true and provide fixed_item with minimal edits.\n- If not fixable without inventing: ok=false.\n\nOUTPUT STRICT JSON ONLY in this schema:\n{\n  \"results\": [\n    {\n      \"ok\": true,\n      \"reason\": \"\",\n      \"fixed_item\": {\n        \"image_pos\": 0,\n        \"category\": \"\",\n        \"l2-category\": \"\",\n        \"question\": \"\",\n        \"A\": \"\",\n        \"B\": \"\",\n        \"C\": \"\",\n        \"D\": \"\",\n        \"_answer\": \"\",\n        \"evidence_refs\": []\n      }\n    }\n  ]\n}\n\nINPUT ITEMS:\n$payload_json\n\nEVIDENCE PACK:\n$evidence_pack_text\nAdditional paper rules: preserve image_pos, question object, requested attribute and task purpose. Never invent a fix or substitute an easier question. Synonym/subset options must not both be true. If text evidence cannot establish the premise or uniqueness, set ok=false. This is a TEXT check, not proof of image correctness.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30
+        ],
+        "reference": "Fig.15; Appendix D Fine-Grained Perception"
+      },
+      "adaptations": "Intent-preserving text verification; unresolved visual support rejects"
+    },
+    "umm_task_prompts/benchmark_style_rules": {
+      "text": "Shared paper task rules:\n- Author the complete task for the Appendix D round contract, not only a recognition or selection question.\n- All textual answers must be supported by the supplied captions/transitions; keep entity, direction and target identity stable.\n- Every output must contain original evidence_refs selected from the pack; cite the actual endpoint frames and transitions used.\n- Every select.answer is exactly target:FXX for the supplied real target, and its rationale explains unique support.\n- Do not speculate about hidden causes or invent intermediate/future images.\n- Author-side access to target evidence is allowed. Solver-side image inputs follow the round contract and must not contain an unobserved future target.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "reference": "Fig.15; Appendix D"
+      },
+      "adaptations": "Complete task semantics and mandatory original citations; author/solver scope distinction"
+    },
+    "umm_task_prompts/seed_system_style": {
+      "text": "Author a grounded edit-to-generate-and-select task. The source and target define real local visible changes. The plan supports target-image generation; selection checks the generated result.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          33
+        ],
+        "reference": "Appendix D Grounded Edit-to-Select"
+      },
+      "adaptations": "Replaces recognition-only style emphasis"
+    },
+    "umm_task_prompts/seed_extra_rules": {
+      "text": "SEED contract: Plan -> Gen -> Select.\nplan.goal describes the target; invariants name unchanged visible content; edits cover the supplied reviewed 1-2 atomic changes.\ngen.summary describes that target state. Gen solver image input is source only after the plan.\nselect chooses the supplied target among real candidates; cite both endpoint captions and the reviewed change.\nNever add an unobserved edit or omit a supported target change.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          33
+        ],
+        "reference": "Appendix D Grounded Edit-to-Select"
+      },
+      "adaptations": "Keeps existing internal schema and renderer"
+    },
+    "umm_task_prompts/weave_extra_rules": {
+      "text": "Weave contract: Understand -> Plan -> QA -> Gen -> Select.\nunderstand.facts includes concrete earlier and later facts; plan.edits connects them.\nqa_open tests a specific detail of the previously shown later image. Its current image input is earlier only, and its answer/rubric bind to the later detail seen in the preceding dialogue.\nPreserve the question object and requested attribute; background recall must not be converted into an edit/action question.\nGen recalls the later state; select chooses that same target. A temporal visual change need not satisfy MagicBrush editing limits.\nCite both endpoint captions and the transition supporting the plan.",
+      "paper": {
+        "pdf_pages": [
+          33
+        ],
+        "reference": "Appendix D Interleaved Understand-Recall-Generate-Select"
+      },
+      "adaptations": "Explicit recall ordering and intent; removes universal edited-pair constraint"
+    },
+    "umm_task_prompts/comm_c1_extra_rules": {
+      "text": "CoMM C1 contract: Overall -> Steps -> Gen for each step -> Select for each step.\nUse one coherent observed visual sequence; each step_text describes its supplied adjacent transition and target state.\nKeep step_texts/select lengths equal to the actual transition count, preserve order, and keep entity/style identity consistent.\nEach Gen uses the preceding step state; select[i] targets the corresponding supplied next state.\nDo not invent steps, require all transitions to be MagicBrush edits, or repeat an unchanged state as progression.\nCite all used frame captions and adjacent transitions.",
+      "paper": {
+        "pdf_pages": [
+          33,
+          34
+        ],
+        "reference": "Appendix D Stepwise Sequence"
+      },
+      "adaptations": "Observed progression and explicit lengths/targets"
+    },
+    "umm_task_prompts/comm_c2_extra_rules": {
+      "text": "CoMM C2 contract: Explain -> Gen -> Select.\nThe observed middle target must fit BOTH supplied adjacent transitions between the earlier and later endpoints.\nexplanation describes that visual middle state and its consistency with both sides, not a hypothetical unseen state.\nExplain and Gen solver image inputs contain endpoints only. Select uses real candidates and targets the observed middle frame.\nCite the three frame captions and BOTH transitions. Temporal support does not require a MagicBrush reviewed pair.",
+      "paper": {
+        "pdf_pages": [
+          34,
+          35
+        ],
+        "reference": "Appendix D Middle-Step Gap"
+      },
+      "adaptations": "Bidirectional transition support and endpoint-only solver input"
+    },
+    "umm_task_prompts/isg_extra_rules": {
+      "text": "ISG contract: Overall -> Edit -> Reason -> Target -> Check -> Gen for each future step -> Select.\nUse the supplied two context states and real future targets. edits/because/so_that/check/select have exactly the future-step count.\nEach edit describes the corresponding immediate future transition, not the context transition. Reasons describe visible continuity, not hidden intent or unseen causes.\nEach target and check describes observable conditions of that future frame.\nGen i can see context and previously generated states only, never the current or later future image.\nCite context/target captions and the adjacent transitions used. These are observed temporal states, not necessarily small controllable MagicBrush edits.",
+      "paper": {
+        "pdf_pages": [
+          35,
+          36
+        ],
+        "reference": "Appendix D Instructional Sequential"
+      },
+      "adaptations": "Array/target/temporal scope requirements"
+    },
+    "paper/visual_review": {
+      "text": "Independently validate a candidate against the supplied images and its actual solver input scope.\nDo not trust its claimed answer or metadata as ground truth. Inspect the image first and give the independently supported answer.\nFor MCQ: check the question premise, all four options, synonym/subset overlap, and whether exactly one option is supported.\nFor reasoning: check every premise, contrast and answer claim against visible cues; reject inferred future cooking, preparation-versus-serving or hidden intent.\nFor dialogue/sequence: check image identity, temporal direction, question intent, answer target and each cited transition.\nFor editing: check all real source-target changes, the 1-2 atomic-edit limit and unchanged-content constraints.\nTools/captions are auxiliary. No source rewriting. If uncertain or evidence is insufficient, use hold.\nReturn STRICT JSON: {\"decision\": \"accept\"|\"reject\"|\"hold\", \"premise_supported\": true|false, \"answer_supported\": true|false, \"unique_answer\": true|false, \"options_exclusive\": true|false, \"independent_answer\": \"...\", \"visible_cues\": [\"...\"], \"unsupported_claims\": [\"...\"], \"reason\": \"...\"}.\nCANDIDATE: $item_json\nSOLVER IMAGE SCOPE: $scope_json\nFor MCQ, independent_answer must be the supported option LETTER, or uncertain when the premise/answer is not decidable. For other tasks, state your independently supported answer; do not omit this field.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30,
+          32,
+          33,
+          34,
+          35,
+          36,
+          48
+        ],
+        "reference": "Fig.15; Appendix D; Fig.29"
+      },
+      "adaptations": "Independent validation step, not a claim that the paper adds a fourth gate"
+    },
+    "chapter_summary_generation": {
+      "text": "You are a robust chapter summarizer for a structured video understanding pipeline.\n\nA chapter summary must summarize the full meaning of one chapter by integrating all shot summaries that belong to that chapter.\nThe output should describe the chapter as a coherent local segment of the video, not as disconnected bullet points.\n\nYour task:\n- Read all provided shot summaries for this chapter.\n- Merge them into one concise, fluent, informative English paragraph.\n- Preserve the important subject matter, actions, stages, transitions, or outcomes that define the chapter.\n- Remove redundancy and avoid repeating nearly identical wording from multiple shots.\n- If the chapter contains multiple steps or states, reflect that progression naturally in the summary.\n- Stay grounded in the provided shot summaries only. Do not invent details.\n\nWriting requirements:\n- Write plain English only.\n- Output exactly one short paragraph.\n- Do not use bullet points, numbering, JSON, markdown, labels, or quotation marks around the answer.\n- Keep the summary compact but specific.\n- Prefer a summary that is easy for downstream planning, scoring, and visualization to read.\n\nReturn the chapter summary only.\nScope clarification: the original video may have been cut into fixed-length input segments. Here video/global means ONLY the current input segment, not the unsupplied full source video. Do not infer events outside that segment.",
+      "paper": {
+        "pdf_pages": [
+          20
+        ],
+        "reference": "Fig.6"
+      },
+      "adaptations": "Explicit segment scope for the user-approved fixed 30-second preprocessing"
+    },
+    "video_summary_generation": {
+      "text": "You are a robust video summarizer for a structured video understanding pipeline.\n\nA video summary must summarize the full video by integrating all chapter summaries that belong to that video.\nThe output should reflect the global content of the whole video, not merely restate isolated chapter fragments.\n\nYour task:\n- Read all provided chapter summaries for this video.\n- Merge them into one concise, fluent, informative English paragraph.\n- Capture the overall subject, major stages, important transitions, and final outcomes of the video when they are supported by the chapter summaries.\n- Remove redundancy and avoid repeating similar content from multiple chapters.\n- If the video progresses through several stages or subtopics, reflect that global progression naturally.\n- Stay grounded in the provided chapter summaries only. Do not invent details.\n\nWriting requirements:\n- Write plain English only.\n- Output exactly one short paragraph.\n- Do not use bullet points, numbering, JSON, markdown, labels, or quotation marks around the answer.\n- Keep the summary compact but globally informative.\n- Prefer a summary that is easy for downstream planning, scoring, and visualization to read.\n\nReturn the video summary only.\nScope clarification: the original video may have been cut into fixed-length input segments. Here video/global means ONLY the current input segment, not the unsupplied full source video. Do not infer events outside that segment.",
+      "paper": {
+        "pdf_pages": [
+          20
+        ],
+        "reference": "Fig.6"
+      },
+      "adaptations": "Explicit segment scope for the user-approved fixed 30-second preprocessing"
+    }
+  }
+}

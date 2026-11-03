@@ -1,0 +1,25 @@
+{
+  "source": "VidUEU current core working tree",
+  "base_commit": "3ac53c6628bf855c54417b4d0810be3f7c65c0aa",
+  "export_date": "2026-10-21",
+  "includes_uncommitted_core_dependencies": true,
+  "excluded": [
+    "Independent post-generation review entry points, private repair/calibration scripts and their tests",
+    "Obsolete duplicate top-level iteration modules",
+    "Machine-local configs, private key and proxy configuration",
+    "Model weights, input datasets, media, logs, outputs, caches and backups"
+  ],
+  "retained_shared_validation": [
+    "Metadata admission, visual observation and entity identity",
+    "Task evidence validation, comparison projection and consistency helpers",
+    "Generation prompt resources and import dependencies"
+  ],
+  "release_changes": [
+    "Lazy canonical orchestrator exports and source closure",
+    "Shared strict configuration loader and loopback public defaults",
+    "Separate setup profiles, pinned asset manifest and verification",
+    "Offline doctor and owned process/tmux lifecycle management",
+    "OmniParser logical-to-physical GPU visibility mapping",
+    "Public documentation, package resources and offline CI"
+  ]
+}

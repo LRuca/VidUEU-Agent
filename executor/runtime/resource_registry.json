@@ -1,0 +1,194 @@
+{
+  "shot_detector": {
+    "enabled": true,
+    "group": "cpu_tool",
+    "scope": "persistent",
+    "persistent": true,
+    "warm_reuse": false,
+    "gpu_heavy": false,
+    "factory": {
+      "class_path": "executor.runtime.builders.shot_detector_builder:ShotDetectorBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {}
+  },
+  "llm": {
+    "enabled": true,
+    "group": "model",
+    "scope": "persistent",
+    "persistent": true,
+    "warm_reuse": true,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.llm_builder:LLMBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {}
+  },
+  "vlm": {
+    "enabled": true,
+    "group": "model",
+    "scope": "video",
+    "persistent": false,
+    "warm_reuse": true,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.vlm_builder:VLMBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {}
+  },
+  "embedder": {
+    "enabled": true,
+    "group": "model",
+    "scope": "video",
+    "persistent": false,
+    "warm_reuse": true,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.embedder_builder:EmbedderBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 4096,
+      "max_concurrency": 1,
+      "idle_unload_s": 60,
+      "queue_timeout_s": 1200,
+      "load_timeout_s": 180,
+      "unload_priority": 25
+    }
+  },
+  "asr": {
+    "enabled": true,
+    "group": "model",
+    "scope": "segment",
+    "persistent": false,
+    "warm_reuse": true,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.asr_builder:ASRBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 9000,
+      "max_concurrency": 1,
+      "idle_unload_s": 60,
+      "queue_timeout_s": 300,
+      "load_timeout_s": 180,
+      "unload_priority": 50
+    }
+  },
+  "ocr": {
+    "enabled": true,
+    "group": "model",
+    "scope": "segment",
+    "persistent": false,
+    "warm_reuse": false,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.ocr_builder:OCRBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 4096,
+      "max_concurrency": 1,
+      "idle_unload_s": 60,
+      "queue_timeout_s": 300,
+      "load_timeout_s": 180,
+      "unload_priority": 40
+    }
+  },
+  "yolo": {
+    "enabled": true,
+    "group": "model",
+    "scope": "video",
+    "persistent": false,
+    "warm_reuse": true,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.yolo_builder:YoloBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 3072,
+      "max_concurrency": 1,
+      "idle_unload_s": 45,
+      "queue_timeout_s": 300,
+      "load_timeout_s": 180,
+      "unload_priority": 30
+    }
+  },
+  "raft": {
+    "enabled": true,
+    "group": "model",
+    "scope": "segment",
+    "persistent": false,
+    "warm_reuse": false,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.raft_builder:RAFTBuilder"
+    },
+    "device_policy": {
+      "mode": "auto",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 6144,
+      "max_concurrency": 1,
+      "idle_unload_s": 45,
+      "queue_timeout_s": 300,
+      "load_timeout_s": 180,
+      "unload_priority": 35
+    }
+  },
+  "omniparser": {
+    "enabled": true,
+    "group": "external_model",
+    "scope": "segment",
+    "persistent": false,
+    "warm_reuse": false,
+    "gpu_heavy": true,
+    "factory": {
+      "class_path": "executor.runtime.builders.omniparser_builder:OmniParserBuilder"
+    },
+    "device_policy": {
+      "mode": "external",
+      "allow_cpu_fallback": true
+    },
+    "config_binding": {},
+    "runtime": {
+      "estimated_vram_mb": 8192,
+      "max_concurrency": 1,
+      "idle_unload_s": 60,
+      "queue_timeout_s": 300,
+      "load_timeout_s": 180,
+      "unload_priority": 45
+    }
+  }
+}

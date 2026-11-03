@@ -1,0 +1,68 @@
+# Copy to iteration.local.yaml in the repository root. Paths below use that root.
+# Real backends: supply your reviewed data and fixed benchmark adapters/subsets.
+iteration:
+  enabled: true
+loop:
+  enabled: true
+  rounds: 4
+  target_train_samples: 30000
+  actual_sample_cap: 0
+  resume: true
+  seed: 20261016
+  candidate_pool: ./outputs/reviewed_candidates.jsonl
+  output_root: ./outputs/iteration-001
+  pipeline_config: ./pipeline.local.yaml
+  generation_backend: candidate_pool
+  trainer_backend: bagel
+  evaluator_backend: benchmark
+  reflection_backend: deepseek
+trainer:
+  model_name: BAGEL-7B-MoT
+  init_checkpoint: ./model/BAGEL-7B-MoT
+bagel:
+  vendor_root: ./vendor/bagel
+  model_path: ./model/BAGEL-7B-MoT
+  python_executable: ./environments/bagel/bin/python
+  visible_devices: "0,1"
+  nproc_per_node: 2
+  # Deployment examples; choose optimizer budget for your data/packing.
+  total_steps: 1000
+  gradient_accumulation_steps: 8
+  expected_num_tokens: 4096
+  max_num_tokens: 8192
+  max_num_tokens_per_sample: 8192
+  timeout_s: 86400
+reflection:
+  backend: deepseek
+benchmark:
+  # Each argv must run your adapter and publish the validated result JSON.
+  # Supported placeholders: checkpoint, checkpoint_digest, subset, output,
+  # output_dir, result, iteration, benchmark. Never embed credentials in argv.
+  commands:
+    MMDU:
+      argv: [./environments/bagel/bin/python, /path/to/mmdu_adapter.py, --checkpoint, "{checkpoint}", --checkpoint-digest, "{checkpoint_digest}", --subset, "{subset}", --output, "{output}", --result, "{result}"]
+      subset: /path/to/mmdu_fixed_subset.json
+      case_ids: [REPLACE_WITH_FIXED_CASE_IDS]
+      source_files: [/path/to/mmdu_adapter.py]
+      media_files: [/path/to/mmdu_image.jpg]
+      judge: Qwen3-VL-235B-A22B-Instruct
+      prompt_version: REPLACE_WITH_FROZEN_PROMPT_VERSION
+      decoding: {temperature: 0, max_new_tokens: 1024}
+    GEdit-Bench-En:
+      argv: [./environments/bagel/bin/python, /path/to/gedit_adapter.py, --checkpoint, "{checkpoint}", --checkpoint-digest, "{checkpoint_digest}", --subset, "{subset}", --output, "{output}", --result, "{result}"]
+      subset: /path/to/gedit_fixed_subset.json
+      case_ids: [REPLACE_WITH_FIXED_CASE_IDS]
+      source_files: [/path/to/gedit_adapter.py]
+      media_files: [/path/to/gedit_image.jpg]
+      judge: gpt-4.1
+      prompt_version: REPLACE_WITH_FROZEN_PROMPT_VERSION
+      decoding: {temperature: 0, max_new_tokens: 1024}
+    WEAVEbench:
+      argv: [./environments/bagel/bin/python, /path/to/weave_adapter.py, --checkpoint, "{checkpoint}", --checkpoint-digest, "{checkpoint_digest}", --subset, "{subset}", --output, "{output}", --result, "{result}"]
+      subset: /path/to/weave_fixed_subset.json
+      case_ids: [REPLACE_WITH_FIXED_CASE_IDS]
+      source_files: [/path/to/weave_adapter.py]
+      media_files: [/path/to/weave_image.jpg]
+      judge: gpt-4o
+      prompt_version: REPLACE_WITH_FROZEN_PROMPT_VERSION
+      decoding: {temperature: 0, max_new_tokens: 1024}

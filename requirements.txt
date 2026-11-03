@@ -1,0 +1,3 @@
+# Compatibility entry point. setup.sh installs the matching Torch/CUDA wheels
+# first. vLLM, OmniParser and BAGEL each require their own environment.
+-r requirements/pipeline.txt

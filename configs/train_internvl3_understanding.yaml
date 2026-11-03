@@ -1,0 +1,31 @@
+version: 1
+recipe: internvl3_understanding
+paper:
+  model: InternVL3-8B
+  epochs: 2
+  learning_rate: 0.00005
+  optimizer: AdamW
+  scheduler: cosine
+  global_batch_size: 32
+  warmup_ratio: 0.03
+  freeze: [vision_encoder]
+  lora: true
+  precision: bf16
+  gradient_checkpointing: true
+  deepspeed_stage: 2
+  reference_gpus: 2
+deployment:
+  python: null
+  adapter: null
+  source_revision: null
+  model_path: null
+  input_manifest: null
+  output: null
+  gpus: []
+  micro_batch_size: 1
+  gradient_accumulation: 16
+  # Pin a verified official InternVL trainer and its data conversion adapter.
+  # The paper does not specify the LoRA rank or image preprocessing here.
+  lora_rank: null
+  image_preprocessing: null
+  adapter_arguments: []

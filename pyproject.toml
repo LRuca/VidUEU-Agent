@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vidueu-agent"
+version = "0.1.0"
+description = "Evidence-grounded video understanding, editing and unified task data pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+dependencies = ["PyYAML>=6,<7", "Pillow>=10,<12", "requests>=2.31,<3"]
+
+[project.scripts]
+vidueu = "vidueu.cli:main"
+vidueu-pipeline = "run_pipeline:main"
+vidueu-doctor = "scripts.doctor:main"
+vidueu-download = "scripts.download_models:main"
+
+[tool.setuptools]
+py-modules = ["run_pipeline", "run_pipeline_http_dashboard", "vidueu_config", "build_umm_bundles", "align_unify_render_format", "replay_umm_from_run"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["vidueu*", "orchestrator*", "executor*", "dataset*", "scripts*", "prompts*", "manifests*"]
+
+[tool.setuptools.package-data]
+"executor.runtime" = ["*.json"]
+"executor.tasks" = ["*.json"]
+"prompts" = ["*.json", "*.txt", "benchmark/*.json"]
+"manifests" = ["*.yaml", "*.json"]

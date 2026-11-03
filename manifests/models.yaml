@@ -1,0 +1,107 @@
+# Revisions queried from official provider metadata on 2026-10-21.
+# URL SHA-256 values computed from the official TLS downloads on that date.
+version: 1
+resources:
+  - id: qwen
+    kind: hf
+    repo_id: Qwen/Qwen3.5-9B
+    revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+    target: Qwen3.5-9B
+    patterns: ['*.json', '*.safetensors', '*.txt', '*.model', '*.jinja']
+    required: [config.json, model.safetensors.index.json, tokenizer.json]
+    license_url: https://huggingface.co/Qwen/Qwen3.5-9B
+  - id: whisper
+    kind: hf
+    repo_id: openai/whisper-large-v2
+    revision: ae4642769ce2ad8fc292556ccea8e901f1530655
+    target: whisper-large-v2
+    patterns: ['*.json', '*.safetensors', '*.txt']
+    required: [config.json, model.safetensors, preprocessor_config.json]
+    license_url: https://huggingface.co/openai/whisper-large-v2
+  - id: clip
+    kind: hf
+    repo_id: openai/clip-vit-large-patch14
+    revision: 32bd64288804d66eefd0ccbe215aa642df71cc41
+    target: clip-vit-large-patch14
+    patterns: ['*.json', '*.safetensors', '*.txt']
+    required: [config.json, model.safetensors, preprocessor_config.json]
+    license_url: https://huggingface.co/openai/clip-vit-large-patch14
+  - id: ocr_det
+    kind: hf
+    repo_id: PaddlePaddle/PP-OCRv5_server_det
+    revision: ca867c897ecbca8873081573a802ad70d499cb94
+    target: PP-OCRv5_server_det
+    patterns: ['*.json', '*.pdiparams', '*.yml']
+    required: [inference.json, inference.pdiparams, inference.yml]
+    license_url: https://huggingface.co/PaddlePaddle/PP-OCRv5_server_det
+  - id: ocr_rec
+    kind: hf
+    repo_id: PaddlePaddle/PP-OCRv5_server_rec
+    revision: b26c3587fda8da3c8ec0ce357214b4d661ff1558
+    target: PP-OCRv5_server_rec
+    patterns: ['*.json', '*.pdiparams', '*.yml']
+    required: [inference.json, inference.pdiparams, inference.yml]
+    license_url: https://huggingface.co/PaddlePaddle/PP-OCRv5_server_rec
+  - id: yolo
+    kind: url
+    url: https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8m.pt
+    sha256: 5d4a90cdc7a21786cc59cd19778e9eafff836df9e2da32524737c7ee6efe4fe5
+    target: yolo
+    filename: yolov8m.pt
+    required: [yolov8m.pt]
+    license_url: https://github.com/ultralytics/ultralytics/blob/main/LICENSE
+  - id: raft_code
+    kind: git
+    url: https://github.com/princeton-vl/RAFT.git
+    revision: 2888e15a51fa41140771d3f498ed8023cff098d1
+    target: RAFT
+    required: [core/raft.py, core/utils/utils.py]
+    license_url: https://github.com/princeton-vl/RAFT/blob/master/LICENSE
+  - id: raft_weights
+    kind: zip
+    url: https://dl.dropboxusercontent.com/s/4j4z58wuv8o0mfz/models.zip
+    sha256: 4be6101b271f58ec49866da5cf609fd17e86e9cae2483f70630ef4a295dc66bd
+    target: RAFT
+    filename: models.zip
+    required: [models/raft-things.pth]
+    members: [models/raft-things.pth]
+    license_url: https://github.com/princeton-vl/RAFT
+  - id: omni_code
+    kind: git
+    url: https://github.com/microsoft/OmniParser.git
+    revision: b0d5c9f5701f7e2be4771872e6e928da77759df3
+    target: OmniParser
+    required: [util/utils.py]
+    license_url: https://github.com/microsoft/OmniParser
+  - id: omni_weights
+    kind: hf
+    repo_id: microsoft/OmniParser-v2.0
+    revision: f55d0750e5b94db2125ef0b45b0fa4a85ddc59b4
+    target: OmniParser/weights
+    patterns: ['icon_detect/*', 'icon_caption/*']
+    required: [icon_detect/model.pt, icon_caption/model.safetensors, icon_caption/config.json]
+    license_url: https://huggingface.co/microsoft/OmniParser-v2.0
+  - id: florence
+    kind: hf
+    repo_id: microsoft/Florence-2-base
+    revision: 5ca5edf5bd017b9919c05d08aebef5e4c7ac3bac
+    target: Florence-2-base
+    patterns: ['*.json', '*.txt', '*.py', '*.model']
+    required: [config.json, tokenizer.json, modeling_florence2.py, configuration_florence2.py]
+    license_url: https://huggingface.co/microsoft/Florence-2-base
+  - id: blip2
+    kind: hf
+    repo_id: Salesforce/blip2-opt-2.7b
+    revision: 59a1ef6c1e5117b3f65523d1c6066825bcf315e3
+    target: blip2-opt-2.7b
+    patterns: ['*.json', '*.safetensors', '*.txt', '*.model']
+    required: [config.json, model.safetensors.index.json, preprocessor_config.json]
+    license_url: https://huggingface.co/Salesforce/blip2-opt-2.7b
+  - id: bagel
+    kind: hf
+    repo_id: ByteDance-Seed/BAGEL-7B-MoT
+    revision: 5019f57d168e5816e8f3f701b17cc816bb7cf24b
+    target: BAGEL-7B-MoT
+    patterns: ['*.json', '*.safetensors', '*.txt', '*.model']
+    required: [config.json, ae.safetensors, ema.safetensors, llm_config.json, vit_config.json]
+    license_url: https://huggingface.co/ByteDance-Seed/BAGEL-7B-MoT

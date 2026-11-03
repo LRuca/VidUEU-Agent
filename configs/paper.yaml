@@ -1,0 +1,363 @@
+models:
+  blip2_model: ${VIDUEU_BLIP_MODEL}
+  whisper_model: ${VIDUEU_WHISPER_MODEL}
+  paddleocr_det: ${VIDUEU_OCR_DET}
+  paddleocr_rec: ${VIDUEU_OCR_REC}
+  yolo: ${VIDUEU_YOLO_WEIGHTS}
+  yolo_device: cpu
+  yolo_img_size: 640
+  yolo_conf: 0.25
+  yolo_iou: 0.45
+  image_embedding_model: ${VIDUEU_CLIP_MODEL}
+  omniparser:
+    repo_root: ${VIDUEU_OMNIPARSER_ROOT}/
+    weights_dir: ${VIDUEU_OMNIPARSER_ROOT}/weights
+    python_executable: ${VIDUEU_TOOL_PYTHON}
+    caption_model_name: florence2
+    caption_model_path: ${VIDUEU_OMNIPARSER_ROOT}/weights/icon_caption
+    caption_processor_path: ${VIDUEU_FLORENCE_ROOT}
+    caption_model_code_path: ${VIDUEU_FLORENCE_ROOT}
+    device: cpu
+    mode: subprocess
+    use_paddleocr: true
+    ocr_device: cpu
+  qwen_llm:
+    mode: api
+    api:
+      base_url: https://api.deepseek.com
+      model: ${VIDUEU_LLM_MODEL}
+      thinking:
+        type: disabled
+      api_key_file: ${DEEPSEEK_API_KEY_FILE}
+      timeout_s: 120
+      pause_interval_s: 0.5
+      max_retries: 3
+      max_inflight: 1
+      pool_connections: 64
+      pool_maxsize: 64
+      reload_key_file: true
+      cooldown_base_s_429: 2.0
+      cooldown_base_s_other: 0.5
+      cooldown_max_s: 30.0
+      slow_key_sec: 45.0
+      proxy_url: ''
+      verify_ssl: true
+      max_api_calls: 100
+      budget_path: ${VIDUEU_OUTPUT_ROOT}/deepseek_budget.sqlite3
+      call_log_path: ${VIDUEU_OUTPUT_ROOT}/api_calls.jsonl
+  qwen_llm_auto_device_map: false
+  qwen_llm_load_in_4bit: false
+  qwen_llm_load_in_8bit: false
+  qwen_vlm:
+    mode: api
+    devices:
+    - cpu
+    target_replicas: 1
+    auto_trim_by_free_vram: false
+    min_free_vram_gb_per_replica: 16
+    reserve_vram_gb: 4
+    api:
+      provider: vllm_openai
+      base_url: ${VIDUEU_VLM_BASE_URL}
+      model: Qwen3.5-9B-local
+      api_key: EMPTY
+      timeout_s: 120
+      max_retries: 0
+      enable_thinking: false
+      temperature: 0.0
+      top_p: 1.0
+      presence_penalty: 0.0
+      top_k: 20
+      allow_local_file_urls: true
+      jpeg_quality: 90
+      data_uri_max_side: 0
+      request_retry_attempts: 2
+      request_retry_backoff_s: 0.5
+      request_retry_backoff_max_s: 3.0
+      service:
+        auto_start: false
+        startup_on_init: false
+        shell_executable: /bin/bash
+        activate_command: ''
+        workdir: .
+        model_path: ${VIDUEU_QWEN_MODEL}
+        served_model_name: Qwen3.5-9B-local
+        bind_host: 127.0.0.1
+        connect_host: 127.0.0.1
+        base_port: 8110
+        tensor_parallel_size: 1
+        reasoning_parser: qwen3
+        allowed_local_media_path: ${VIDUEU_WORK_ROOT}
+        startup_timeout_s: 240
+        poll_interval_s: 2
+        reuse_existing: true
+        gpu_memory_utilization: 0.85
+        adaptive_gpu_memory_utilization: true
+        gpu_memory_utilization_margin_gb: 1.0
+        extra_args: []
+        log_dir: logs/vllm
+        remote_b:
+          enabled: false
+        remote_c:
+          enabled: false
+qwen_vlm:
+  mem_debug: false
+  empty_cache_on_return: false
+  gc_on_return: true
+  max_new_tokens_cap: 768
+  oom_retry:
+    enable: true
+    sleep_s: 0.2
+    max_sides:
+    - 896
+    - 768
+    - 512
+    token_scales:
+    - 1.0
+    - 0.75
+    - 0.5
+runtime:
+  output_root: ${VIDUEU_OUTPUT_ROOT}
+  video_run_mode: skip_completed
+  video_parallelism:
+    enabled: false
+    max_workers: 1
+  vlm_pool:
+    target_replicas: 1
+  input_path: ${VIDUEU_INPUT}
+tasks:
+  T0_video_preprocess:
+    target_fps: 1
+  T0_frames:
+    max_base_frames: 180
+  T2_image_embedding:
+    local_files_only: true
+    device: cpu
+    batch_size: 8
+    text_batch_size: 32
+    max_text_tokens: 77
+  T2_gate_c:
+    mode: step_local
+    shot_dup_threshold: 0.94
+    step_segmentation_enabled: true
+    step_model: rbf
+    step_min_size: 6
+    step_jump: 1
+    step_penalty: auto
+    step_penalty_scale: 1.6
+    step_embed_pca_dim: 12
+    keep_exception_in_step: false
+  T2_quota_llm:
+    enable_llm: true
+    max_new_tokens: 4096
+    keep_debug: true
+    force_cover_nonlow: true
+    min_per_chapter: 1
+    seconds_per_frame_budget: 6.0
+    max_frames_per_shot: 6
+    max_total_budget: 24
+    min_total_budget: 2
+  T2_representative_selection:
+    selector_backend: facility_location_greedy
+    lambda_value: 0.7
+    image_embed_weight: 0.6
+    text_embed_weight: 0.4
+    max_candidates_per_shot: 512
+    paper_formula: true
+    enable_text_fusion: false
+    image_fusion_weight: 1.0
+    text_fusion_weight: 0.0
+    time_decay_tau_sec: null
+    evidence_bonus_scale: 0.0
+    tool_signal_scale: 0.0
+  T4_ocr:
+    lang: en
+    use_angle_cls: false
+    use_gpu: false
+    device: cpu
+    verbose: false
+    enable_hpi: false
+    enable_mkldnn: false
+    enable_cinn: false
+  T2_asr:
+    enabled: true
+    language: zh
+    task: transcribe
+  T2_frames:
+    adaptive_sampling: false
+    base_fps: 1.0
+    default_fps: 1.5
+    min_fps: 0.5
+    max_fps: 3.0
+    min_frames_per_shot: 1
+    long_shot_sec: 8.0
+    long_shot_min_frames: 3
+    by_role:
+      title_card: 0.8
+      slide: 1.0
+      screen_demo: 1.2
+      talking_head: 1.0
+      interview: 1.0
+      lecture: 1.0
+      generic: 1.5
+      action: 3.0
+      broll: 2.5
+      transition_bridge: 0.6
+    by_sampling_hint:
+      low: 0.8
+      medium: 1.0
+      high: 1.35
+  T1:
+    enable_split: false
+    GLOBAL_MAX_FRAMES: 16
+    GLOBAL_TOP_CHANGE: 8
+    RAFT_MAX_FRAMES: 120
+    RAFT_STRIDE: 0
+    TARGET_CHAPTER_SEC: 10
+  T1_shot_detection:
+    detector: content
+    sample_fps: 2.0
+    min_shot_sec: 1.0
+    content_threshold: 24.0
+    allow_opencv_fallback: false
+  T1_shot_profile:
+    max_rep_frames: 2
+    long_shot_sec: 6.0
+    min_frames_for_second: 6
+    min_ocr_chars: 6
+    enable_object_tags: false
+    paper_midpoint: true
+  T1_chapter_build:
+    merge_threshold: 0.58
+    hard_boundary_threshold: 0.35
+    min_chapter_shots: 2
+    use_llm_for_pairwise: true
+  T2_vlm_check:
+    max_asr_chars: 400
+    max_ocr_chars: 300
+  T2_gate_b:
+    fast_reject_threshold: 0.22
+    hard_floor: 0.35
+    enable_model_stage: true
+    vlm_enable: true
+    vlm_max_new_tokens: 768
+  T3_local:
+    single_max_new_tokens: 256
+    max_new_tokens: 768
+    refine_max_new_tokens: 256
+  T4_dataset:
+    format: generic_qa
+  T4:
+    max_llava: 1
+    max_magicbrush: 1
+    max_mmt: 2
+    max_mme: 0
+    max_generation: 0
+    max_dialog_visdial: 0
+    max_dialog_mmdu: 1
+    enable_llm_decision: true
+    enable_llm_generation: true
+    enable_llm_magicbrush_instruction: true
+    enable_generation_routing: false
+    generation_vlm_max_new_tokens: 900
+    generation_ground_truth_dirname: generation_ground_truth
+    max_magicbrush_pair_review: 12
+    attach_all_keyframes_to_meta: true
+    dialog_visdial_rounds: 3
+    dialog_mmdu_rounds: 3
+    dialog_mmdu_image_count: 3
+    dialog_mmdu_use_new_image_turn: true
+    global_mix:
+      warmup_items: 40
+      single_cap: 0.2
+      edit_cap: 0.3
+      dialog_min: 0.4
+      dialog_max: 0.5
+    magicbrush_flow:
+      low_thr: 0.3
+      high_thr: 0.45
+      allow_camera_motion_max_level: low
+    task_profile: paper
+    prompt_profile: paper_v2
+    max_unify: 1
+    unify_llm_retry_attempts: 1
+paths:
+  prompt_audit_path: ${VIDUEU_OUTPUT_ROOT}/prompt_audit.jsonl
+  temp_dir: tmp
+  output_dir: outputs
+  semantic_dir: outputs/semantic
+  log_dir: logs
+  debug_dir: logs/debug
+semantic_segmentation:
+  fixed_clip_seconds: 30
+  alpha_semantic: 0.7
+  beta_flow: 0.3
+  boundary_threshold: 0.5
+optical_flow:
+  backend: raft
+  raft:
+    repo_root: ${VIDUEU_RAFT_ROOT}
+    weights: ${VIDUEU_RAFT_ROOT}/models/raft-things.pth
+    small: false
+    mixed_precision: true
+    alternate_corr: false
+    device: cpu
+keyframe_selector:
+  max_frames: 16
+  debug: true
+  debug_max_list: 30
+  det_obj_weight: 0.3
+  det_center_weight: 0.4
+  det_conf_weight: 0.3
+  emb_diversity_sim_threshold: 0.9
+  diversity_relax_enable: true
+  diversity_relax_step: 0.01
+  diversity_relax_max_rounds: 8
+  diversity_hard_sim_threshold: 0.985
+  diversity_time_beta_start: 0.25
+  diversity_time_beta_step: 0.15
+  diversity_time_beta_max: 0.55
+  diversity_time_gap_min: 2
+  diversity_time_gap_max: 6
+  diversity_seed_trials: 6
+  transition_filter: true
+  transition_margin: 0
+  transition_dissolve_enable: true
+  transition_emb_enable: true
+  transition_cut_enable: true
+  transition_pn_min: 0.08
+  transition_res_max: 0.06
+  transition_res_ratio_max: 0.65
+  transition_local_min: 0.02
+  transition_bal_ratio: 0.3
+  transition_alpha_min: 0.03
+  transition_alpha_max: 0.97
+  transition_emb_sim_min: 0.7
+  transition_emb_span_max: 0.92
+  transition_emb_delta_min: 0.04
+  transition_cut_soft_th: 0.14
+  transition_cut_hard_th: 0.12
+  transition_cut_run_len: 2
+  transition_dissolve_resize_h: 96
+  transition_dissolve_resize_w: 96
+  transition_bal_eps: 0.01
+  transition_emb_require_cut: true
+  iqa_musiq_enable: false
+  iqa_musiq_device: cpu
+  iqa_musiq_timeout_s: 600
+  iqa_musiq_weight: 0.15
+  iqa_musiq_pre_topk: 0
+  blurmap_enable: false
+  blurmap_dir: ''
+  blurmap_ext: .png
+  blurmap_generate_if_missing: false
+  blurmap_device: cpu
+  blurmap_timeout_s: 1800
+  blurmap_require_all: false
+  blurmap_val_motion: 100
+  blurmap_val_defocus: 200
+  blurmap_grid: 16
+  blurmap_cell_th: 0.15
+  blurmap_conf_den: 0.2
+pipeline:
+  segment_seconds: 30

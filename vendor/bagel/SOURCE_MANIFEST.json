@@ -1,0 +1,210 @@
+{
+  "source": "BAGEL training fork, https://github.com/ByteDance-Seed/Bagel",
+  "source_commit": "5573194eb883fc2e10a486041df847f186c599f2",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+    },
+    {
+      "path": "inferencer.py",
+      "sha256": "b9ac399528098698d359c91610bc43f0d2bf1edfbf9f6845e92220d2e8acf051"
+    },
+    {
+      "path": "run_inferencer.py",
+      "sha256": "84993620936de00efd97f97a345ec4ceb9ee28aaec30663a630b67f025e43a67"
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "4fe2bcf7aad8a60142936d1bed74ba8fa52c80d38051c73eb6a863c55df13dcc"
+    },
+    {
+      "path": "README_MULTITURN_TRAINING.md",
+      "sha256": "d7c47f288e84b2a4a1293c59758ea15bec2d7f1834b23e4e3b2fe384b7aa85bb"
+    },
+    {
+      "path": "data/__init__.py",
+      "sha256": "15397311214f7a0755342060a6722a15cbed23bc5a94948bbd2ba42d36b92f9e"
+    },
+    {
+      "path": "data/data_utils.py",
+      "sha256": "464fe05ff705ece2d08505e5b35e4e16905ca8f55d0153689500c81f62deb271"
+    },
+    {
+      "path": "data/dataset_base.py",
+      "sha256": "cbc60a374aa94ac53d28ed22eb9ee6ea8568a0df513ce5dac432fcb108bde783"
+    },
+    {
+      "path": "data/distributed_iterable_dataset.py",
+      "sha256": "e3c5def63c32fe266f1d5ccbf975293756f5bcdeaee71d349bd268cc453f74d9"
+    },
+    {
+      "path": "data/parquet_utils.py",
+      "sha256": "bbe4fba10fc740fdbc8f204d7b1e4202a620b546287fae7924b01a22bbc57f0a"
+    },
+    {
+      "path": "data/transforms.py",
+      "sha256": "39b215df50a2eefd920a65886925e7d933161d55f4bcb51fb04e5921dc763ce4"
+    },
+    {
+      "path": "data/video_utils.py",
+      "sha256": "3317bbc348639085da756ba468ac332dc7cc93b1ded4a8d03986d45803d67006"
+    },
+    {
+      "path": "data/vlm_dataset.py",
+      "sha256": "1292fe70f1dfadee2826ff1e192ce675d551fbf2827534a648f3f10def7ef8db"
+    },
+    {
+      "path": "data/dataset_info.py",
+      "sha256": "d68078da78070853ab05d901ba3e076c58b18e08cbd4276433447786bd28d889"
+    },
+    {
+      "path": "data/t2i_dataset.py",
+      "sha256": "9d0e13a739c8b127feb589231574b0618e003336bfdd29c519b92b2b9d2f3e44"
+    },
+    {
+      "path": "data/multiturn_jsonl_dataset.py",
+      "sha256": "15d55d8eda9e03acebfb4d553965aa7b080478eadc6ed373771f25e2dc5e3875"
+    },
+    {
+      "path": "data/citation_dialogue_utils.py",
+      "sha256": "5404eaf0b81497c2b6d7350d951a12ea09066cdce115004138a73d0b7fb74160"
+    },
+    {
+      "path": "data/multiturn_citation_json_dataset.py",
+      "sha256": "8507a83836965c6301ef1c5abd54b8ad12442f2252b0fe969659439c19b9c03b"
+    },
+    {
+      "path": "data/configs/example.yaml",
+      "sha256": "c74796be4ddc4f436893563b1dc23cab1f630fd73a432181563f86df98695a1d"
+    },
+    {
+      "path": "data/configs/citation_multiturn_example.yaml",
+      "sha256": "dfb8cf2b9f5ffab84a5d771d0e5eca960707932df175f81f5cf72fdabf992355"
+    },
+    {
+      "path": "data/configs/vlm_understand_55k.yaml",
+      "sha256": "e3ba1d3d73cb10efc8c3bd28cedff9a54e33b0ea1cc6a0b55f0b6edbe2748ae1"
+    },
+    {
+      "path": "data/configs/unify_weave_uie_select_recall.yaml",
+      "sha256": "0bd7041a560c0da28c254f9354fa379ffa5d816825d51bb1545869980a55bf2e"
+    },
+    {
+      "path": "data/interleave_datasets/__init__.py",
+      "sha256": "6df43e88d86f890922dc43cd2cdafa8205db476a040f49825d90e74b52c74255"
+    },
+    {
+      "path": "data/interleave_datasets/edit_dataset.py",
+      "sha256": "9ba8521f4055ca48224ef90adf71d55f28927fefe7f66404846525236499a8d2"
+    },
+    {
+      "path": "data/interleave_datasets/interleave_t2i_dataset.py",
+      "sha256": "c5d9c2e91fd3edc40ef380a31863f94a80d47801e83151d7c0edae2a1f6e7e5f"
+    },
+    {
+      "path": "modeling/__init__.py",
+      "sha256": "1e1ecaf1647bcc5bf62cc435a594b97e664cdd7758cce7b48c39e1725a3d5099"
+    },
+    {
+      "path": "modeling/autoencoder.py",
+      "sha256": "57941c0c14b9487e9a95f4d048755ab5ad4b75d144874009e3ba8a0302e68efa"
+    },
+    {
+      "path": "modeling/bagel/__init__.py",
+      "sha256": "59d4106be415927bbc41c325b7a5df52e3a02ec1c701aa9655dd5e2f1aeaf90e"
+    },
+    {
+      "path": "modeling/bagel/bagel.py",
+      "sha256": "56242d02e91451c4c27a019bde1000af2f8c7f6a589e255846961732577c8ede"
+    },
+    {
+      "path": "modeling/bagel/modeling_utils.py",
+      "sha256": "6fe5eed0513a462c28cccd8ec86d5496b774667fa6f04be8f70e6595baf3f323"
+    },
+    {
+      "path": "modeling/bagel/qwen2_navit.py",
+      "sha256": "8dbae7fa1db87d5ea10d15e15b31aaebce57e02aeab9081f16ec18b1637bda0f"
+    },
+    {
+      "path": "modeling/bagel/siglip_navit.py",
+      "sha256": "23e6682df03baaeb189f2dc8a4b75827d4a734439f572ce31d9b97e6cd895a39"
+    },
+    {
+      "path": "modeling/bagel/bagel_gtoken.py",
+      "sha256": "3abd68e66e1e72d8c49675d243b46b57c42f11eef5030bb67a1e3bd98a506993"
+    },
+    {
+      "path": "modeling/cache_utils/taylorseer.py",
+      "sha256": "353a560c7b3164766f797020322a8e40d329ee3c3cc09c656dbe8d5522068dae"
+    },
+    {
+      "path": "modeling/qwen2/__init__.py",
+      "sha256": "c98f7445ec6af14d32d650436b754f74c281e91d22e82a6115264c355bd75ecf"
+    },
+    {
+      "path": "modeling/qwen2/configuration_qwen2.py",
+      "sha256": "541074d10078a144914b6104dbab6af0c6030ad2695526896c1e6231603136a1"
+    },
+    {
+      "path": "modeling/qwen2/modeling_qwen2.py",
+      "sha256": "4c2c9e2e5a0c00c28391572f67dcde87b03ab2c5ac447d20de08c9ad1381c552"
+    },
+    {
+      "path": "modeling/qwen2/tokenization_qwen2.py",
+      "sha256": "5add04cc0ef8e8549151cc7babe733d93ed8739aa265acb49073c0ad129abd48"
+    },
+    {
+      "path": "modeling/qwen2/tokenization_qwen2_fast.py",
+      "sha256": "7f4177e86f80e3feabc67d32ff6135896c280f37cceaec2f43703e50aef82b9c"
+    },
+    {
+      "path": "modeling/siglip/__init__.py",
+      "sha256": "1a0470f5ee0139f8387626302107efedb2349d5caef8ea23ed3416cbc5229c60"
+    },
+    {
+      "path": "modeling/siglip/configuration_siglip.py",
+      "sha256": "3064249ae6b6f330a69fa9f1d79dd48b4e12f2ba9aae11d805625275299913ef"
+    },
+    {
+      "path": "modeling/siglip/convert_siglip_to_hf.py",
+      "sha256": "91acbaf1745609c72d26ca9c95b626b3fe84da193b7c6b9f3ecfc2747b2738dc"
+    },
+    {
+      "path": "modeling/siglip/image_processing_siglip.py",
+      "sha256": "2455839b8360701f440824af3af2417ed21f10283d649d6929b66932260428c7"
+    },
+    {
+      "path": "modeling/siglip/modeling_siglip.py",
+      "sha256": "d601ad9987922ba8b0fa59ef35654c1b8da2b300d69bc3dde5f10d1356d879fd"
+    },
+    {
+      "path": "modeling/siglip/processing_siglip.py",
+      "sha256": "c70d6be66a05b42d7dbf568a9fd309d7c90fbe02d56db32daa83af2882d696b4"
+    },
+    {
+      "path": "modeling/siglip/tokenization_siglip.py",
+      "sha256": "04631ab91c49b47d3d9be8032ca4488f9280ffc8fc2eb1701bc2297b535536e0"
+    },
+    {
+      "path": "train/__init__.py",
+      "sha256": "15397311214f7a0755342060a6722a15cbed23bc5a94948bbd2ba42d36b92f9e"
+    },
+    {
+      "path": "train/fsdp_utils.py",
+      "sha256": "3bcf56d1b65e85df2fb1ad3453d857765b5d466ddbe2bd21ff982b2d24c34d6c"
+    },
+    {
+      "path": "train/train_utils.py",
+      "sha256": "565cc07cae1b23bdba7079458a1c86f36587179837e1ee88f4591a6042581580"
+    },
+    {
+      "path": "train/pretrain_unified_navit.py",
+      "sha256": "ae295f02a678ff4241827f4fe6e2933f3dd7339e7b63c0a9b84f90ae0571bc8b"
+    },
+    {
+      "path": "tools/export_ckpt_to_official_layout_hardcoded.py",
+      "sha256": "e8f36c41cac2ecc960fc47abdfcc97d544c12d997685fa18cf7b200c79f6803c"
+    }
+  ]
+}

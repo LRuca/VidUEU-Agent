@@ -1,0 +1,9 @@
+{"record_key":"demo-perception","task_type":"fine_grained_perception","video_type":"tutorial"}
+{"record_key":"demo-reasoning","task_type":"single_image_reasoning","video_type":"tutorial"}
+{"record_key":"demo-logic","task_type":"multi_image_logic","video_type":"tutorial"}
+{"record_key":"demo-edit","task_type":"localized_editing","video_type":"tutorial"}
+{"record_key":"demo-grounded","task_type":"grounded_edit_to_select","video_type":"tutorial"}
+{"record_key":"demo-recall","task_type":"understand_recall_generate_select","video_type":"tutorial"}
+{"record_key":"demo-step","task_type":"stepwise_sequence","video_type":"tutorial"}
+{"record_key":"demo-gap","task_type":"middle_step_gap","video_type":"tutorial"}
+{"record_key":"demo-future","task_type":"instructional_future_sequence","video_type":"tutorial"}

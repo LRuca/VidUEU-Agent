@@ -1,0 +1,4 @@
+-r ../vendor/bagel/requirements.txt
+# Build tools before installing flash-attn (setup adds it as a separate step).
+packaging>=23
+ninja

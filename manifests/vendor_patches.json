@@ -1,0 +1,19 @@
+{
+  "component": "vendor/bagel",
+  "upstream": "https://github.com/ByteDance-Seed/Bagel",
+  "snapshot_commit": "5573194eb883fc2e10a486041df847f186c599f2",
+  "note": "Original imported file hashes remain in SOURCE_MANIFEST.json. These are release-only changes on top of the customized snapshot.",
+  "changes": [
+    {
+      "path": "tools/export_ckpt_to_official_layout_hardcoded.py",
+      "reason": "Remove author-machine defaults; require explicit base, checkpoint and output paths.",
+      "original_sha256": "e8f36c41cac2ecc960fc47abdfcc97d544c12d997685fa18cf7b200c79f6803c",
+      "release_sha256": "635eb231bc273d6ec76c58d3f12f6952b357fbe5d7c9edcba2f8d1a28769c913"
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "reason": "Replace a private machine path with a public source description; retain original per-file hashes.",
+      "release_sha256": "edd600d4f547c6657f024176680e446dac45a13fd8b10fedef80be970049b298"
+    }
+  ]
+}

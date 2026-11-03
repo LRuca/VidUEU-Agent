@@ -1,0 +1,28 @@
+version: 1
+recipe: paper_evaluation
+paper:
+  generation_passes: 1
+  judge_repetitions: 1
+  fixed_outputs_for_judge_repeats: true
+  judges:
+    LLaVA-Bench: Qwen3.5-35B-A3B
+    MMDU: Qwen3-VL-235B-A22B-Instruct
+    GEdit-Bench-En: gpt-4.1
+    WEAVEbench: gpt-4o
+  editing_metrics: [G_SC, G_PQ, G_O, Average]
+  unified_metrics: [Science, Creation, Logic, Game, Average]
+  understanding_benchmarks: [MMT-Bench, MME, LLaVA-Bench, MMDU]
+deployment:
+  python: null
+  adapter: null
+  source_revision: null
+  model_path: null
+  input_manifest: null
+  output: null
+  gpus: []
+  frozen_case_ids: null
+  prompt_file: null
+  decoding: null
+  judge_configuration: null
+  # Private key paths belong in a separate ignored deployment config.
+  adapter_arguments: []

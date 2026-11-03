@@ -1,0 +1,354 @@
+{
+  "version": "paper_v6",
+  "paper_sha256": "d13a37dbee48029c39f40b4696f4367166fee5fdfe73b640705843b02cfb9cdb",
+  "legacy_sources": {
+    "toolplan_quality": {
+      "pdf_pages": [
+        22
+      ],
+      "reference": "Fig.9"
+    },
+    "quality_toolcall": {
+      "pdf_pages": [
+        45
+      ],
+      "reference": "Fig.27"
+    },
+    "tool_signal_semanticizer": {
+      "pdf_pages": [
+        23,
+        31
+      ],
+      "reference": "Fig.10; Table 9"
+    },
+    "llm_value_analyse": {
+      "pdf_pages": [
+        24
+      ],
+      "reference": "Fig.11"
+    },
+    "quota_plan": {
+      "pdf_pages": [
+        25
+      ],
+      "reference": "Fig.12"
+    },
+    "chapter_summary_generation": {
+      "pdf_pages": [
+        20
+      ],
+      "reference": "Fig.6"
+    },
+    "video_summary_generation": {
+      "pdf_pages": [
+        20
+      ],
+      "reference": "Fig.6"
+    },
+    "t3_local": {
+      "pdf_pages": [
+        21,
+        26
+      ],
+      "reference": "Fig.8/13"
+    },
+    "t4_generation_prompts": {
+      "pdf_pages": [
+        28
+      ],
+      "reference": "Fig.15"
+    },
+    "t4_structured": {
+      "pdf_pages": [
+        28,
+        30,
+        32
+      ],
+      "reference": "Fig.15; Appendix D"
+    },
+    "umm_task_prompts": {
+      "pdf_pages": [
+        28,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "reference": "Fig.15; Appendix D"
+    }
+  },
+  "prompts": {
+    "paper/frame_caption": {
+      "text": "Inspect ONE image from the current segment. The image is primary evidence; the original caption is a hypothesis.\nObserve the interacting foreground entities and stable visible anchors separately, including simultaneously present tools, containers, hands, fabric, food and surfaces. Use broad labels when a subtype is uncertain. Do not assign anatomical hand sides. Record states, not an imagined action sequence.\nDo not assert a liquid source unless a stream from that source is visible. Do not infer preparation versus serving, hidden intent, past/future events or off-screen causes. Preserve readable text literally; uncertain text is not a fact.\nGive a 1-2 sentence factual caption, observations, uncertainties and unsupported_original_claims. Also return frame_id and entities.\nEach entity has a frame-local ID E0, E1, etc.; IDs do NOT establish identity across frames. Give a label, broad category, concrete appearance_cues, visible_state, position, uncertainties and evidence_refs.\nposition.region uses exactly one of: upper_left, upper_center, upper_right, center_left, center, center_right, lower_left, lower_center, lower_right, uncertain. Coordinates refer to the IMAGE.\nposition.anchor_entity is another listed entity ID or null. position.relation uses exactly one of: inside, above, below, image_left_of, image_right_of, on, touching, overlapping, near, none, uncertain. Use null with none/uncertain, and a listed anchor with any other relation. position.certain is false for unresolved placement. A utensil may overlap a container without becoming the container.\nUse the actual dominant location of an entity, with its interaction specified relative to a stable anchor. Do not merge a pot, a spoon and a cloth into one entity.\ncategory uses exactly one of: person, body_part, container, utensil, fabric, food, surface, text, other.\nReturn STRICT JSON with this structure (fill actual observations; no schema placeholders):\n{\"frame_id\":\"$frame_id\",\"caption\":\"...\",\"observations\":[\"...\"],\"uncertainties\":[],\"unsupported_original_claims\":[],\"entities\":[{\"entity_id\":\"E0\",\"label\":\"...\",\"category\":\"other\",\"appearance_cues\":[\"...\"],\"visible_state\":\"...\",\"position\":{\"region\":\"center\",\"anchor_entity\":null,\"relation\":\"none\",\"certain\":true},\"uncertainties\":[],\"evidence_refs\":[\"${frame_id}_IMAGE\"]}]}\nFRAME: $frame_id\nORIGINAL CAPTION: $original_caption",
+      "paper": {
+        "pdf_pages": [
+          5,
+          26,
+          48
+        ],
+        "reference": "Section 3.1.3; Fig.13; Fig.29"
+      },
+      "adaptations": "Structured image-bound entity states extend Fig.13 without replacing the existing caption contract; observation structure is not visual acceptance"
+    },
+    "t3_local/pair_transition": {
+      "text": "Compare images A -> B in this direction. Images are primary evidence. The supplied frame observations are imperfect pixel observations, not ground truth. Check them against both images. Captions, summary and tool signals cannot establish a change absent from the images.\nFirst match the SAME entities by concrete shape, appearance and visible relationships. Local E IDs are independently assigned per frame: identical ID numbers do not prove identity. Distinguish tools, containers, fabric, body parts and food. A cloth and a spoon can both persist; moving a tool is not replacing another object. If identity is unresolved use status uncertain and do not create an edit on that match.\nAccount for EVERY listed entity once, either in matches or unmatched_source/unmatched_target. Matches are one-to-one. status uses same or uncertain; provide identity_cues and both image evidence IDs. A same match must have compatible broad categories.\nThen compare each supported source state with its destination state, especially tool positions relative to visible containers/food/surfaces. Explicitly inspect position differences even when captions describe the same ongoing activity. If supplied positions disagree with pixels, mark that match uncertain, explain the observation error, and do not silently assert no change.\nDescribe meaningful visible appearance/disappearance, movement, rotation, state, exact readable text, camera/view or shot changes. Ignore insignificant artifacts. An unseen object is not proof of physical destruction; unmatched does not automatically mean add/remove. Do not infer pouring, preparation/serving, hidden intent or future steps.\nEach change has source_entity, target_entity, verb, source_state, target_state, edit and evidence_refs for BOTH images. Movement/state edits need a same match. add uses source_entity=null and an unmatched target; remove uses an unmatched source and target_entity=null. Camera/shot edits use both entity IDs null. Each entity edit must use the supplied source entity label (the target label for add), so its target is explicit.\nAllowed verbs: add, remove, move, rotate, open, close, turn on, turn off, change text, zoom, pan, tilt, cut. An edit has one target and one verb. Describe A and B image-coordinate positions; never anatomical hand sides. Prefer camera verbs when viewpoint explains motion. Changes do not automatically qualify as 1-2 small controllable edits.\ntransition keeps the paper format: Edits(k): 1) ...; 2) ... | Shot: <none/minor/scene_cut> | View: <none/minor/major> | Subject: <same/unclear/different> | Uncertainty: <none or a note>.\nIts edits MUST exactly match changes[].edit in order, and k must equal their count. A shot boundary needs cut to new shot. For no supported meaningful change use changes=[], Edits(0): none, and a concrete no_change_reason comparing the states. A clear matched position difference cannot coexist with no-change. Unknown change is uncertainty, not an invented edit.\nReturn ONLY STRICT JSON:\n{\"source_frame\":\"...\",\"target_frame\":\"...\",\"matches\":[{\"source_entity\":\"E0\",\"target_entity\":\"E1\",\"status\":\"same\",\"identity_cues\":[\"...\"],\"evidence_refs\":[\"F00_IMAGE\",\"F01_IMAGE\"]}],\"unmatched_source\":[],\"unmatched_target\":[],\"changes\":[{\"source_entity\":\"E0\",\"target_entity\":\"E1\",\"verb\":\"move\",\"source_state\":\"...\",\"target_state\":\"...\",\"edit\":\"move <actual entity label> from <A position> to <B position>\",\"evidence_refs\":[\"F00_IMAGE\",\"F01_IMAGE\"]}],\"no_change_reason\":null,\"uncertainties\":[],\"transition\":\"...\"}\nThe example IDs illustrate the schema only; use the actual supplied frame IDs and entities.\nVideo type: $video_type\nSegment background: $summary\nModality advice: $advice\nSecondary captions A: $cap_a; B: $cap_b\nOBSERVATIONS A: $states_a\nOBSERVATIONS B: $states_b",
+      "paper": {
+        "pdf_pages": [
+          26
+        ],
+        "reference": "Fig.13"
+      },
+      "adaptations": "Explicit one-to-one entity matching and state-to-transition consistency; JSON audit envelope retains the paper transition string interface"
+    },
+    "paper/signal_filter": {
+      "text": "You are a precise semantic filtering assistant.\nFilter each supplied semantic tool signal by its associated shot summary and frame caption.\nKeep only clearly supported, relevant, useful signals. Remove irrelevant, redundant, vague, unsupported, inconsistent or weakly related signals; remove if uncertain.\nTreat tools as imperfect auxiliary evidence. ASR is nearby speech, not visible text. Motion magnitude is not an action or importance label.\nDo not invent, rewrite or merge signals. Preserve exact OCR wording, spelling, numbers and newlines in retained evidence.\nReturn STRICT JSON: {\"retained\": [{\"id\": \"...\", \"reason\": \"...\"}], \"removed\": [{\"id\": \"...\", \"reason\": \"...\"}]}.\nClassify every supplied ID exactly once.\nSHOTS: $shots_json\nSIGNALS: $signals_json",
+      "paper": {
+        "pdf_pages": [
+          47
+        ],
+        "reference": "Fig.28"
+      },
+      "adaptations": "Stable signal IDs and immutable wording instead of returning rewritten signal strings; caption context included"
+    },
+    "paper/gate_c": {
+      "text": "You are a strict metadata-level admission judge for video-to-dataset generation.\nJudge the whole package using summaries, captions, retained tool signals and consecutive transitions. Check factual claims against the supplied images.\nThis metadata describes only the current input SEGMENT.\nApply ALL seven criteria:\n1. Grounded visual content: concrete visible entities, interactions, states, layouts, readable text or meaningful changes.\n2. Cross-level coherence: summaries, captions, images and transitions agree; a plausible summary cannot override contradictory image evidence.\n3. Dataset usefulness: enough support for at least one meaningful understanding, editing or unified task.\n4. Evidence density: distinct specific evidence; reject generic filler and uninformative near-duplicates.\n5. Tool reliability: tools are auxiliary; unsupported or contradictory signals cannot establish a fact.\n6. Temporal/structural value: meaningful progression, interactions, procedures, layouts or object relations. Static informative content can support understanding.\n7. Hallucination safety: reject metadata requiring invented identities, exact text, hidden causes, intentions, unobserved stage contrasts or future events.\nDistinguish held containers, interacting tools and visible liquid flow. Do not infer a pouring source merely from a held pot.\nJudge raw image quality only when it prevents metadata grounding.\nA transition explicitly marked call_failed or invalid is incomplete evidence, not a claim of no change; reject the incomplete package.\nReturn STRICT JSON: {\"decision\": \"accept\" or \"reject\", \"primary_reasons\": [2-4 concise reasons], \"summary_consistent\": true or false}.\nReject if summary_consistent is false.\nMETADATA: $metadata_json\nOnly the reviewed claims supplied in this package are judged. Earlier captions and summaries retained elsewhere are pre-verification hypotheses, not current claims. Uncertainty notes do not assert that an event occurred.\nInspect the structured entities and every cross-frame match directly against the images. Contract-valid is not visually approved. Check persistent tools/containers/fabric, source and target positions, and omitted visible changes. Do not accept a no-change assertion merely because captions repeat. Reject a package with materially false entity states or unexplained missing changes; uncertainty may remain when it does not undermine the supported tasks.",
+      "paper": {
+        "pdf_pages": [
+          48
+        ],
+        "reference": "Fig.29; Section 3.1.4"
+      },
+      "adaptations": "Explicit visual summary verification and segment scope; distinguishes failed observations from no change; checks structured observations and identity matches against pixels"
+    },
+    "paper/routing": {
+      "text": "You are a quota allocator for dataset instance generation.\nRoute the reviewed segment to the NINE paper task types. Multiple types may be suitable.\nUse ONLY the EVIDENCE PACK; tools are imperfect auxiliary evidence. Read S_SEGEMENT_SUM before concrete frame/transition evidence.\nFor every task give quota, reason, evidence_refs. Positive quota requires an existing S_* ID and relevant frame/transition IDs. Explain zero quotas.\nUse zero when support is insufficient; do not infer hidden causes or fill quotas with trivial questions.\nfine_grained_perception: visible single-image entities, attributes, relations or text, with a unique MCQ answer.\nsingle_image_reasoning: a visible-cue-supported inference about interaction, function or constraints, not an unknown stage or hidden intent.\nmulti_image_logic: at least two images with useful cross-image comparison or joint verification.\nlocalized_editing and grounded_edit_to_select: only supplied reviewed pairs with 1-2 small controllable atomic edits.\nunderstand_recall_generate_select: recall of a previously shown later detail and meaningful earlier-to-later change.\nstepwise_sequence and middle_step_gap: coherent distinct ordered states and supported adjacent changes.\ninstructional_future_sequence: at least two context states and real, grounded immediate future states.\nTemporal tasks require semantic state changes, not camera-only motion, cuts or redundant frames; they do not all require a MagicBrush edit pair.\nELIGIBLE flags are feasibility limits, not instructions to select every eligible task. Set zero if false; do not exceed limits.\nTASKS: $tasks_json\nLIMITS: $limits_json\nELIGIBLE: $eligible_json\nREVIEWED EDIT PAIRS (keyframe positions): $pairs_json\nEVIDENCE PACK:\n$evidence_text\nReturn STRICT JSON: {\"tasks\": {\"task_name\": {\"quota\": 0, \"reason\": \"...\", \"evidence_refs\": []}}, \"edit_pairs\": [{\"from\": 0, \"to\": 1}]}.\nInclude all nine task names; choose pairs only from the supplied list.",
+      "paper": {
+        "pdf_pages": [
+          6,
+          27,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "reference": "Section 3.2.2; Fig.14; Appendix D"
+      },
+      "adaptations": "Nine explicit template routes replace legacy benchmark quotas; task-specific temporal eligibility; quality before output count"
+    },
+    "t4_structured/llava_answer_rules": {
+      "text": "LLaVA answer rules:\n- Use 2-4 sentences: a supported conclusion followed by concrete visible cues.\n- Do not mention evidence IDs or tools in training text.\n- Do not infer unsupported details, hidden intent, future events or an unobserved preparation/serving stage.\n- Use image-frame spatial positions, never anatomical laterality.",
+      "paper": {
+        "pdf_pages": [
+          32
+        ],
+        "reference": "Appendix D Visual Reasoning"
+      },
+      "adaptations": "Unifies answer length with the paper"
+    },
+    "t4_structured/llava_reasoning_rules": {
+      "text": "Visual reasoning rules:\n- Require reasoning about visible interaction, function, constraint-based identification, image-frame spatial relations or an observable inconsistency.\n- The question premise and any contrast MUST be supported by this image alone.\n- Never ask why an unobserved alternative is not happening, infer a hidden intention, or guess what happened before or will happen next.\n- If support is insufficient, return fewer items, including an empty items list.\n- Identify the target clearly and justify the conclusion with relevant visible cues. Generic scene context is not proof of a specific causal claim.\n- The answer follows the 2-4 sentence rule; do not impose another length requirement.\n- Return reasoning_evidence: conclusion, visible_cues, inference_link, answer_claims.\n- Each visible_cues entry has claim and same-image evidence_refs. inference_link explains how those visible cues support an inference beyond directly naming/describing the scene. This explanation is not itself evidence.\n- answer_claims must cover EVERY answer sentence verbatim, in order; each has claim, support (visible or inferred), evidence_refs. Inferred claims must follow from the stated visible cues. No hidden stage, intent or unseen event.\n- A category label or extra sentence does not turn a direct action description into reasoning. Return no item when no substantive supported inference exists.\n",
+      "paper": {
+        "pdf_pages": [
+          32,
+          48
+        ],
+        "reference": "Appendix D Visual Reasoning; Fig.29"
+      },
+      "adaptations": "Removes unsupported intent/stage inference and conflicting two-sentence constraint; author exposes visible cues, inference link and every answer claim for independent semantic review"
+    },
+    "t4_generation_prompts/fewshot_bank/llava_bench": {
+      "text": "STYLE EXAMPLE (not evidence for this image):\n{\"image_pos\":0,\"category\":\"complex\",\"reasoning_category\":\"function\",\"question\":\"What function does the mesh strainer over the bowl serve when liquid and solid pieces are visible?\",\"gpt_answer\":\"It separates the solid pieces from the liquid. The mesh retains the pieces while the bowl below catches liquid passing through.\",\"evidence_refs\":[\"F00_CAP\"],\"reasoning_evidence\":{\"conclusion\":\"It separates solids from liquid.\",\"visible_cues\":[{\"claim\":\"Mesh supports solid pieces above a bowl with liquid.\",\"evidence_refs\":[\"F00_CAP\"]}],\"inference_link\":\"The mesh openings permit liquid passage while retaining larger pieces; the bowl receives the passing liquid.\",\"answer_claims\":[{\"claim\":\"It separates the solid pieces from the liquid.\",\"support\":\"inferred\",\"evidence_refs\":[\"F00_CAP\"]},{\"claim\":\"The mesh retains the pieces while the bowl below catches liquid passing through.\",\"support\":\"inferred\",\"evidence_refs\":[\"F00_CAP\"]}]}}\nUse only when equivalent visible cues support the inference. Do not copy example objects or assume unseen stages. Naming a tool or describing a held object is perception, even when labelled function/activity.\n",
+      "paper": {
+        "pdf_pages": [
+          32
+        ],
+        "reference": "Appendix D Visual Reasoning"
+      },
+      "adaptations": "Visible function example replaces prediction of leaving a place; legacy category preserved with paper semantic category"
+    },
+    "t4_structured/single_image_rules": {
+      "text": "Single-image rules:\n- A solver sees ONLY the image at that item's image_pos.\n- Use only the corresponding Fxx_* evidence to establish the answer. S_* is light background only.\n- Other frames, transitions, ASR or segment progression cannot supply a fact absent from this image.\n- Cite at least one original frame evidence ID for the same image_pos.\n- No before/after/earlier/later/next/previous, invisible stage/intent, or future-event premises.\n- Return fewer items if support is insufficient. Do not turn uncertainty into an assertion.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30,
+          32
+        ],
+        "reference": "Fig.15; Appendix D Understanding"
+      },
+      "adaptations": "Explicit per-item evidence scope and abstention"
+    },
+    "t4_structured/mmt_option_rules": {
+      "text": "MMT multiple-choice rules (SINGLE-CORRECT HARD):\n- Provide exactly ONE correct option; the other 3 must be plausible distractors.\n- All options must be the SAME type/granularity (all colors / all object types / all counts / etc.).\n- Distractors should be wrong by ONE key visual detail, not random.\n- Keep options similar length/style. No \"All of the above\" / \"None of the above\".\n\nCOUNTING POLICY (HARD — because exact counting is error-prone):\n- DO NOT ask exact-count questions by default.\n- You may ask an exact-count question ONLY if ALL conditions hold:\n  (1) The target set is CLOSED: \"fully visible in-frame\" AND clearly belongs to the set.\n  (2) Objects are NOT occluded and do NOT extend out of frame.\n  (3) The correct count is in {0,1,2} ONLY.\n  (4) The question explicitly states viewpoint reference if using left/right: \"from the camera viewpoint\".\n- If ANY condition is not satisfied, replace with a MORE ROBUST alternative:\n  * comparison\n  * threshold\n  * identification instead of count\n\nUNIQUENESS CHECK (HARD, internal only):\n- The correct option must be uniquely true.\n- If 2+ options could be true due to ambiguity, you MUST fix it by rewriting:\n  (a) tighten the question with extra anchors, OR\n  (b) rewrite options so only ONE matches the image.\n- Do this internally; output ONLY the final JSON.\n- Distractors must be mutually exclusive for THIS question; synonyms and subset/superset answers can make more than one option true.\n- A held object does not establish it as the source of a visible action. Verify the action premise.\n- Return fewer items or none if uniqueness cannot be established without changing the task.\nReturn perception_evidence with premise_cues (claim and same-image evidence_refs) and option_checks for A/B/C/D. Each option check has status supported/excluded/uncertain, reason and same-image evidence_refs. Exactly the answer option must be supported; each distractor must have a concrete exclusion reason. If two options overlap or a premise is not visible, withhold the item. The evidence contract does not replace visual review.\n\nCheck spatial options independently: right/left versus behind/in-front belong to different axes and can both hold. Do not use mixed-axis options unless the question defines an exclusive category supported by the image. Do not silently reinterpret the question to manufacture uniqueness.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30
+        ],
+        "reference": "Fig.15; Appendix D Fine-Grained Perception"
+      },
+      "adaptations": "Clarifies overlapping options and unsupported action premises; explicit premise and per-option evidence contract; cross-axis spatial overlap"
+    },
+    "t4_structured/mmt_verifier": {
+      "text": "You are verifying MMT multiple-choice questions for SINGLE-IMAGE evaluation.\nGoal: reduce ambiguity and ensure EXACTLY ONE correct option.\n\nHard rules (MUST follow):\n- Each item is answerable from ONLY the image at image_pos.\n- There MUST be exactly ONE correct option among A/B/C/D.\n- Options must be same type/granularity; no multi-attribute mixes.\n- Question must be unambiguous: the target must be uniquely anchored (type + disambiguation anchor).\n- Do NOT use timeline/sequence language (before/after/earlier/later/next/previous).\n- Do NOT invent details beyond evidence.\n\n- category MUST be one of: $mmt_allowed_categories_json.\n- l2-category MUST be one of: $mmt_allowed_l2_json.\n\n- If an item uses anatomical/person-relative left/right (e.g., \"person's left hand\"), you MUST NOT convert it to image-left/right.\n- You may only fix it by rewriting into a screen-position description WITHOUT claiming anatomical side,\n  e.g., \"the hand visible on the left side of the image\" + one extra anchor.\n- If you cannot fix without semantic change or invention, set ok=false.\n\nWhat you can do:\n- If the item is already good: ok=true, fixed_item can be omitted or identical.\n- If ambiguous but fixable: ok=true and provide fixed_item with minimal edits.\n- If not fixable without inventing: ok=false.\n\nOUTPUT STRICT JSON ONLY in this schema:\n{\n  \"results\": [\n    {\n      \"ok\": true,\n      \"reason\": \"\",\n      \"fixed_item\": {\n        \"image_pos\": 0,\n        \"category\": \"\",\n        \"l2-category\": \"\",\n        \"question\": \"\",\n        \"A\": \"\",\n        \"B\": \"\",\n        \"C\": \"\",\n        \"D\": \"\",\n        \"_answer\": \"\",\n        \"evidence_refs\": []\n      }\n    }\n  ]\n}\n\nINPUT ITEMS:\n$payload_json\n\nEVIDENCE PACK:\n$evidence_pack_text\nAdditional paper rules: preserve image_pos, question object, requested attribute and task purpose. Never invent a fix or substitute an easier question. Synonym/subset options must not both be true. If text evidence cannot establish the premise or uniqueness, set ok=false. This is a TEXT check, not proof of image correctness.\nPreserve perception_evidence verbatim when returning fixed_item. Do not rewrite the question, options, answer or evidence to make a failed task pass; reject unresolved semantic changes.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30
+        ],
+        "reference": "Fig.15; Appendix D Fine-Grained Perception"
+      },
+      "adaptations": "Intent-preserving text verification; unresolved visual support rejects"
+    },
+    "umm_task_prompts/benchmark_style_rules": {
+      "text": "Shared paper task rules:\n- Author the complete task for the Appendix D round contract, not only a recognition or selection question.\n- All textual answers must be supported by the supplied captions/transitions; keep entity, direction and target identity stable.\n- Every output must contain original evidence_refs selected from the pack; cite the actual endpoint frames and transitions used.\n- Every select.answer is exactly target:FXX for the supplied real target, and its rationale explains unique support.\n- Do not speculate about hidden causes or invent intermediate/future images.\n- Author-side access to target evidence is allowed. Solver-side image inputs follow the round contract and must not contain an unobserved future target.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "reference": "Fig.15; Appendix D"
+      },
+      "adaptations": "Complete task semantics and mandatory original citations; author/solver scope distinction"
+    },
+    "umm_task_prompts/seed_system_style": {
+      "text": "Author a grounded edit-to-generate-and-select task. The source and target define real local visible changes. The plan supports target-image generation; selection checks the generated result.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          33
+        ],
+        "reference": "Appendix D Grounded Edit-to-Select"
+      },
+      "adaptations": "Replaces recognition-only style emphasis"
+    },
+    "umm_task_prompts/seed_extra_rules": {
+      "text": "SEED contract: Plan -> Gen -> Select.\nplan.goal describes the target; invariants name unchanged visible content; edits cover the supplied reviewed 1-2 atomic changes.\ngen.summary describes that target state. Gen solver image input is source only after the plan.\nselect chooses the supplied target among real candidates; cite both endpoint captions and the reviewed change.\nNever add an unobserved edit or omit a supported target change.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          33
+        ],
+        "reference": "Appendix D Grounded Edit-to-Select"
+      },
+      "adaptations": "Keeps existing internal schema and renderer"
+    },
+    "umm_task_prompts/weave_extra_rules": {
+      "text": "Weave contract: Understand -> Plan -> QA -> Gen -> Select.\nunderstand.facts includes concrete earlier and later facts; plan.edits connects them.\nqa_open tests a specific detail of the previously shown later image. Its current image input is earlier only, and its answer/rubric bind to the later detail seen in the preceding dialogue.\nPreserve the question object and requested attribute; background recall must not be converted into an edit/action question.\nGen recalls the later state; select chooses that same target. A temporal visual change need not satisfy MagicBrush editing limits.\nCite both endpoint captions and the transition supporting the plan.\nThere is no universal 1-2-edit limit for Weave. Use complete verified entity states and comparisons; keep pot/container, tool and hand distinct. Do not convert object displacement into pouring without observed flow.",
+      "paper": {
+        "pdf_pages": [
+          33
+        ],
+        "reference": "Appendix D Interleaved Understand-Recall-Generate-Select"
+      },
+      "adaptations": "Explicit recall ordering and intent; removes universal edited-pair constraint; explicit separate edit-count contract"
+    },
+    "umm_task_prompts/comm_c1_extra_rules": {
+      "text": "CoMM C1 contract: Overall -> Steps -> Gen for each step -> Select for each step.\nUse one coherent observed visual sequence; each step_text describes its supplied adjacent transition and target state.\nKeep step_texts/select lengths equal to the actual transition count, preserve order, and keep entity/style identity consistent.\nEach Gen uses the preceding step state; select[i] targets the corresponding supplied next state.\nDo not invent steps, require all transitions to be MagicBrush edits, or repeat an unchanged state as progression.\nCite all used frame captions and adjacent transitions.\nThe overall answer is solved from ONLY the first and last supplied images, with no earlier conversation containing intermediate frames. Describe endpoint-supported change; do not narrate a hidden middle-state detour or reversal. Detailed intermediate actions belong only in step_texts. The author sees all frames but must not leak that privilege into overall.\nThis request authors only question, step_texts and select. Do not return overall; a separate endpoint-only request authors that field. Keep the same entity-tracking purpose and preserve the complete observed step sequence.\nDistinguish a cloth-covered handle from a covered pot opening; use anchored image-side hand roles without unverified anatomical labels.",
+      "paper": {
+        "pdf_pages": [
+          33,
+          34
+        ],
+        "reference": "Appendix D Stepwise Sequence"
+      },
+      "adaptations": "Observed progression and explicit lengths/targets; endpoint-only overall claims; separate endpoint-only overall author"
+    },
+    "umm_task_prompts/comm_c2_extra_rules": {
+      "text": "CoMM C2 contract: Explain -> Gen -> Select.\nThe observed middle target must fit BOTH supplied adjacent transitions between the earlier and later endpoints.\nexplanation describes that visual middle state and its consistency with both sides, not a hypothetical unseen state.\nExplain and Gen solver image inputs contain endpoints only. Select uses real candidates and targets the observed middle frame.\nCite the three frame captions and BOTH transitions. Temporal support does not require a MagicBrush reviewed pair.\nKeep the target the observed middle frame. Ask how that visual state fits the endpoints and both adjacent transitions, without claiming the endpoints uniquely prove every hidden intermediate detail or human intention. Preserve pot/tool/cloth roles. Use anchored image coordinates, not unverified anatomical left/right.",
+      "paper": {
+        "pdf_pages": [
+          34,
+          35
+        ],
+        "reference": "Appendix D Middle-Step Gap"
+      },
+      "adaptations": "Bidirectional transition support and endpoint-only solver input; avoid unique hidden-history claims and anatomical labels"
+    },
+    "umm_task_prompts/isg_extra_rules": {
+      "text": "ISG contract: Overall -> Edit -> Reason -> Target -> Check -> Gen for each future step -> Select.\nUse the supplied two context states and real future targets. edits/because/so_that/check/select have exactly the future-step count.\nEach edit describes the corresponding immediate future transition, not the context transition. Reasons describe visible continuity, not hidden intent or unseen causes.\nEach target and check describes observable conditions of that future frame.\nGen i can see context and previously generated states only, never the current or later future image.\nCite context/target captions and the adjacent transitions used. These are observed temporal states, not necessarily small controllable MagicBrush edits.",
+      "paper": {
+        "pdf_pages": [
+          35,
+          36
+        ],
+        "reference": "Appendix D Instructional Sequential"
+      },
+      "adaptations": "Array/target/temporal scope requirements"
+    },
+    "paper/visual_review": {
+      "text": "Independently solve and validate this task from the supplied image(s). Metadata, captions, prior approval and the MCQ answer key are intentionally withheld.\nFirst inspect what is actually visible. Describe concrete objects, positions and interactions; do not infer the action from a question's premise.\nFor an MCQ, independently check EVERY option and the question premise. A held container does not establish a visible pouring source. A utensil overlapping a pot can still be visible and must not be denied. A ladle may also be a spoon: check synonym/subtype overlap before declaring exclusivity. When the requested source/action is not visibly established, answer uncertain and reject or hold rather than choose the most plausible option.\nFor reasoning, reject a hidden stage/intent contrast or a future event. Directly restating a visible action without an inference is not a reasoning task. Check whether each answer claim is supported; do not treat the supplied answer as evidence.\nDetermine the actual task type first. Localized editing alone requires all source-target changes to fit one or two atomic local edits with stable invariants. Grounded edit-to-select uses its admitted localized editing pair. Do NOT apply that count restriction to Weave, C1, C2 or ISG: each has a separate temporal task contract.\nWeave: Understand and Plan show earlier AND later images; QA and Gen show the earlier image while recalling the later state seen in preceding rounds. A later-detail QA is valid recall when grounded in that history. Never rewrite its object or requested attribute into an edit question.\nC1: Overall has only start/end images and no prior middle-state history. Its answer may describe endpoint-supported overall change but must not assert a detour, reversal or precise intermediate action visible only in the middle frame. Steps receives all sequence images; each Gen uses its preceding state and each Select targets the corresponding next state.\nC2: Explain and Gen receive endpoints, not the ground-truth middle frame. The task is reconstruction of a compatible middle state from adjacent constraints, not certainty about a hidden event. Reject unsupported intent or causal claims; target and candidate selection must satisfy both sides.\nISG: Planning uses the shown context and a supplied grounded continuation instruction. Future target images are author/reviewer evidence, not solver input. Distinguish an instruction to generate a compatible continuation from an unsupported claim that a unique future or human purpose is visible. Check each because/so_that/check clause and each target.\nDialogue: independently inspect every user premise and every assistant answer using the referenced images and previously shown history. A false user premise invalidates its answer even when the answer agrees with the premise.\nAll rounds: follow the actual turns.in and render.query image bindings. All images supplied to you are REVIEWER evidence; their availability does not expand the solver's per-round inputs. Preserve entity identity, source-to-target direction, task purpose and candidate binding.\nReturn STRICT JSON, with visible_cues FIRST: {\"visible_cues\": [\"concrete observed facts\"], \"independent_answer\": \"MCQ letter or uncertain; otherwise your own supported answer\", \"unsupported_claims\": [\"unsupported premise or answer claim\"], \"premise_supported\": true|false, \"answer_supported\": true|false, \"unique_answer\": true|false, \"options_exclusive\": true|false, \"decision\": \"accept\"|\"reject\"|\"hold\", \"reason\": \"...\"}.\nFor MCQ, answer_supported means a grounded independent answer exists; the caller checks it against the hidden key. Never mark accept if the premise is unsupported, more than one option fits, or evidence is uncertain.\nTASK: $item_json\nSOLVER IMAGE SCOPE: $scope_json\nAlso return task_type_supported (boolean). For reasoning, return inference_check: {conclusion, visible_cues, inference_link, substantive_inference: boolean}. Independently determine whether the conclusion requires a supported inference or merely describes what is directly visible. Reject direct description presented as reasoning. Inspect every answer sentence; reject any unsupported claim.\nFor MCQ also return option_checks with A/B/C/D each having status supported/excluded/uncertain and reason. Solve independently; exactly one supported option and three excluded options are required for accept. Do not equate different strings with exclusive concepts. Use hold for unresolved visual evidence, not a plausible guess.\nAuthor evidence notes may guide what to check but cannot establish a visible fact. Prior metadata, approvals and the candidate key remain hidden.\n\nAlso return scope_supported (boolean). For dialogue/editing/unified tasks, return turn_checks in the exact order of SOLVER IMAGE SCOPE.required_turn_checks. Each entry: {\"turn\": \"required ID\", \"premise_supported\": true|false, \"answer_supported\": true|false, \"scope_supported\": true|false, \"target_supported\": true|false, \"direction_supported\": true|false, \"reason\": \"concrete observed support or precise missing evidence\"}. Use true for a field that is inapplicable to that round and explain it. For a multi-round independent_answer, give your own concise supported assessment of the requested facts and selections. Accept requires every round to pass.\nFor spatial MCQs, check each option on its own axis: an object can simultaneously be to the right AND behind another object. Different spatial directions are not automatically mutually exclusive. Check the wording's actual reference frame; never invent a single-axis interpretation to make a second true option false.\n\nFor open dialogue or reasoning without candidate selection, unique_answer and options_exclusive are inapplicable: set them true as schema conventions. Multiple supported phrasings do not make an open answer invalid. Still judge every premise, claim, task type and image/history scope. For MCQ or unified selection, actual option exclusivity and unique target support remain mandatory.",
+      "paper": {
+        "pdf_pages": [
+          28,
+          30,
+          32,
+          33,
+          34,
+          35,
+          36,
+          48
+        ],
+        "reference": "Fig.15; Appendix D; Fig.29"
+      },
+      "adaptations": "Task-specific contracts, complete ordered round checks, actual solver image/history scope, and spatial-option overlap; independent validation only; explicit inapplicable option flags for open dialogue"
+    },
+    "chapter_summary_generation": {
+      "text": "You are a robust chapter summarizer for a structured video understanding pipeline.\n\nA chapter summary must summarize the full meaning of one chapter by integrating all shot summaries that belong to that chapter.\nThe output should describe the chapter as a coherent local segment of the video, not as disconnected bullet points.\n\nYour task:\n- Read all provided shot summaries for this chapter.\n- Merge them into one concise, fluent, informative English paragraph.\n- Preserve the important subject matter, actions, stages, transitions, or outcomes that define the chapter.\n- Remove redundancy and avoid repeating nearly identical wording from multiple shots.\n- If the chapter contains multiple steps or states, reflect that progression naturally in the summary.\n- Stay grounded in the provided shot summaries only. Do not invent details.\n\nWriting requirements:\n- Write plain English only.\n- Output exactly one short paragraph.\n- Do not use bullet points, numbering, JSON, markdown, labels, or quotation marks around the answer.\n- Keep the summary compact but specific.\n- Prefer a summary that is easy for downstream planning, scoring, and visualization to read.\n\nReturn the chapter summary only.\nScope clarification: the original video may have been cut into fixed-length input segments. Here video/global means ONLY the current input segment, not the unsupplied full source video. Do not infer events outside that segment.",
+      "paper": {
+        "pdf_pages": [
+          20
+        ],
+        "reference": "Fig.6"
+      },
+      "adaptations": "Explicit segment scope for the user-approved fixed 30-second preprocessing"
+    },
+    "video_summary_generation": {
+      "text": "You are a robust video summarizer for a structured video understanding pipeline.\n\nA video summary must summarize the full video by integrating all chapter summaries that belong to that video.\nThe output should reflect the global content of the whole video, not merely restate isolated chapter fragments.\n\nYour task:\n- Read all provided chapter summaries for this video.\n- Merge them into one concise, fluent, informative English paragraph.\n- Capture the overall subject, major stages, important transitions, and final outcomes of the video when they are supported by the chapter summaries.\n- Remove redundancy and avoid repeating similar content from multiple chapters.\n- If the video progresses through several stages or subtopics, reflect that global progression naturally.\n- Stay grounded in the provided chapter summaries only. Do not invent details.\n\nWriting requirements:\n- Write plain English only.\n- Output exactly one short paragraph.\n- Do not use bullet points, numbering, JSON, markdown, labels, or quotation marks around the answer.\n- Keep the summary compact but globally informative.\n- Prefer a summary that is easy for downstream planning, scoring, and visualization to read.\n\nReturn the video summary only.\nScope clarification: the original video may have been cut into fixed-length input segments. Here video/global means ONLY the current input segment, not the unsupplied full source video. Do not infer events outside that segment.",
+      "paper": {
+        "pdf_pages": [
+          20
+        ],
+        "reference": "Fig.6"
+      },
+      "adaptations": "Explicit segment scope for the user-approved fixed 30-second preprocessing"
+    },
+    "t4_structured/dialog_mmdu_kind_rules": {
+      "text": "Produce a Multi-Image Logic dialogue with exactly $rounds question-answer pairs ($total_turns alternating turns). The first user turn states one grounded cross-image goal and a 2-3 step plan, and includes ALL selected images using Image1:<ImageHere>, Image2:<ImageHere>, etc. Subsequent turns follow that goal, comparing checkable attributes or verifying entity relations.\nUse complete Fxx_CAP/Fxx_STATE observations and Pxx_TRANS/Pxx_COMPARE comparisons. Check every question premise before using it. State an observed relation or ask whether it holds; never assume an unobserved relation. Keep distinct containers, tools, hands and food separate. A tool overlapping an opening is not liquid flow; cloth at a handle is not a cover over an opening.\nA comparison can report the absence of an expected condition when the evidence supports that absence. Do not infer preparation/serving stage, intention, food identity or a hidden action. Return fewer dialogues or none when the requested task cannot be grounded.",
+      "paper": {
+        "pdf_pages": [
+          32
+        ],
+        "reference": "Appendix D Multi-Image Logic"
+      },
+      "adaptations": "Complete structured observations, verifiable premises and explicit entity roles; preserve ordered dialogue"
+    },
+    "t4_structured/dialog_base_rules": {
+      "text": "Output STRICT JSON with exactly $total_turns alternating user/assistant turns, starting with user. Every turn includes evidence_refs with at least one selected frame CAP/STATE ID. Cross-image claims cite all referenced frames; state changes also cite the relevant supplied TRANS/COMPARE ID. Use only IDs actually shown in the evidence pack. A segment summary is context, never proof of an image-level premise or answer.\nUse image coordinates with anchored entities; do not infer anatomical left/right. Keep each answer concise and specific. Preserve the comparison goal, question object and requested attribute across turns. Cover $distinct_user_foci distinct checks only when supported, without inventing differences to force diversity.\nDistinguish visible, uncertain and unobserved. Admit uncertainty when needed; withhold an unsupported question rather than answer a guessed premise. Verify entity identity, relation and direction against the supplied states. Do not turn tool activity strength or a tilted container into proof of liquid flow or human intent.",
+      "paper": {
+        "pdf_pages": [
+          32,
+          48
+        ],
+        "reference": "Appendix D Multi-Image Logic; Fig.29"
+      },
+      "adaptations": "Image-grounded dialogue, complete evidence IDs and uncertainty without forced summary citations or diversity"
+    },
+    "umm_task_prompts/comm_c1_overall": {
+      "text": "Author ONLY the C1 overall answer from the two endpoint images' verified CAP/STATE observations below. No middle image, transition, earlier conversation or segment summary is available. Describe the visible start-to-end difference with stable entity identities, without an intermediate detour, reversal, hidden action, intent or anatomical hand-side claim. A cloth on a handle does not mean a covered pot opening. Do not describe only one endpoint; compare them.\nEndpoint positions: $positions_json\nEVIDENCE:\n$evidence_text\nReturn strict JSON {\"overall\":\"concise endpoint-supported comparison\", \"evidence_refs\":[\"provided endpoint CAP/STATE IDs\"]}. Cite both endpoints, and no other source.",
+      "paper": {
+        "pdf_pages": [
+          34
+        ],
+        "reference": "Appendix D Stepwise Sequence Round_Overall"
+      },
+      "adaptations": "Dedicated endpoint-only text author, preserving separate overall/steps solver scopes"
+    }
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "ocr": {
+    "enabled": true,
+    "display_name": "OCR",
+    "purpose": "Read visible text and structured screen content from frames.",
+    "returns": ["detected text", "frame text hints", "summary"],
+    "use_for": ["text understanding", "UI recovery", "document understanding"],
+    "scenes": ["slides", "screen recordings", "documents", "software demos"],
+    "adapter": {
+      "class_path": "executor.tools.ocr_tool:OCRToolAdapter"
+    },
+    "resources": ["ocr"],
+    "planner": {
+      "priority": 0.9,
+      "max_per_chapter": 2,
+      "max_per_shot": 1,
+      "default_roles": ["screen_demo", "slide", "title_card"],
+      "default_conditions": {
+        "text_density_gte": 0.35
+      }
+    },
+    "semanticizer": {
+      "enabled": true,
+      "include_in_semantic_text": true,
+      "default_weight": 1.0,
+      "prompt_rules": [
+        "Use OCR attributes.text_lines as the primary evidence source for readable text.",
+        "Prefer explaining the visible meaning or role of the text in this frame rather than repeating every token verbatim.",
+        "If OCR text is noisy or fragmentary, keep the description conservative and partial instead of over-interpreting."
+      ]
+    },
+    "value_scoring": {
+      "enabled": true,
+      "allow_focus": true,
+      "score_rules": [
+        "Reward frames where OCR evidence clearly exposes task-relevant text such as titles, steps, labels, states, commands, or UI cues that help identify what is happening.",
+        "Give higher value when attributes.text_lines are readable, specific, and materially improve frame understanding beyond generic screen content.",
+        "Do not reward OCR noise, fragmentary text, repeated boilerplate, or partial tokens unless they still reveal important state or intent."
+      ]
+    }
+  },
+  "asr": {
+    "enabled": true,
+    "display_name": "ASR",
+    "purpose": "Recover spoken content and nearby verbal context around a frame or shot.",
+    "returns": ["speech snippets", "frame-near speech hints", "summary"],
+    "use_for": ["spoken instruction understanding", "dialogue understanding", "narration recovery"],
+    "scenes": ["talking heads", "interviews", "lectures", "tutorial narration"],
+    "adapter": {
+      "class_path": "executor.tools.asr_tool:ASRToolAdapter"
+    },
+    "resources": ["asr"],
+    "planner": {
+      "priority": 0.85,
+      "max_per_chapter": 2,
+      "max_per_shot": 1,
+      "default_roles": ["talking_head", "interview", "lecture"],
+      "default_conditions": {
+        "speech_density_gte": 0.35
+      }
+    },
+    "semanticizer": {
+      "enabled": true,
+      "include_in_semantic_text": true,
+      "default_weight": 1.0,
+      "prompt_rules": [
+        "Use ASR attributes.segments as the primary evidence source for nearby spoken content.",
+        "Treat speech as temporal context near the frame, not guaranteed on-screen text or direct visual evidence.",
+        "Summarize what the speech contributes to understanding this frame, and stay conservative when the speech-frame alignment is weak."
+      ]
+    },
+    "value_scoring": {
+      "enabled": true,
+      "allow_focus": true,
+      "score_rules": [
+        "Reward frames when nearby ASR segments contribute concrete spoken instructions, explanations, actions, or contextual meaning that helps interpret the frame.",
+        "Give higher value when speech evidence is specific and aligned with the apparent step, state, or action near the frame instead of being generic narration.",
+        "Do not over-reward speech when temporal alignment is weak, when the transcript is vague, or when the same information is already obvious without the ASR evidence."
+      ]
+    }
+  },
+  "yolo": {
+    "enabled": true,
+    "display_name": "YOLO",
+    "purpose": "Identify visible objects, people, tools, and scene entities.",
+    "returns": ["object labels", "frame object hints", "summary"],
+    "use_for": ["entity grounding", "object presence", "scene composition understanding"],
+    "scenes": ["real-world scenes", "product shots", "hands-on demonstrations", "workspace scenes"],
+    "adapter": {
+      "class_path": "executor.tools.yolo_tool:YoloToolAdapter"
+    },
+    "resources": ["yolo"],
+    "planner": {
+      "priority": 0.8,
+      "max_per_chapter": 2,
+      "max_per_shot": 1,
+      "default_roles": ["screen_demo", "slide", "title_card", "action", "broll", "talking_head", "interview", "lecture"],
+      "default_conditions": {}
+    },
+    "semanticizer": {
+      "enabled": true,
+      "include_in_semantic_text": true,
+      "default_weight": 1.0,
+      "prompt_rules": [
+        "Use YOLO attributes.labels as the primary evidence source for visible entities in the frame.",
+        "Use evidence.detections only as supporting detail such as confidence or localization, not as proof of importance by itself.",
+        "Describe only clearly supported visible entities and avoid inventing relationships or actions not grounded by the detections."
+      ]
+    },
+    "value_scoring": {
+      "enabled": true,
+      "allow_focus": true,
+      "score_rules": [
+        "Reward frames where YOLO evidence identifies clear, relevant visible entities that help explain the subject, objects in use, workspace context, or interaction target.",
+        "Give higher value when detected labels are specific, diverse, and genuinely informative for understanding this frame rather than generic background presence.",
+        "Do not treat detection confidence or object count alone as value; reward only the entities that materially improve understanding of the frame."
+      ]
+    }
+  },
+  "optical_flow": {
+    "enabled": true,
+    "display_name": "Optical Flow",
+    "purpose": "Capture motion strength and temporal change between nearby frames.",
+    "returns": ["motion hints", "flow levels", "summary"],
+    "use_for": ["motion understanding", "change detection", "step transition detection"],
+    "scenes": ["actions", "sports", "procedural tasks", "state changes", "fast movement"],
+    "adapter": {
+      "class_path": "executor.tools.optical_flow_tool:OpticalFlowToolAdapter"
+    },
+    "resources": ["raft"],
+    "planner": {
+      "priority": 0.8,
+      "max_per_chapter": 2,
+      "max_per_shot": 1,
+      "default_roles": ["action", "broll"],
+      "default_conditions": {
+        "scene_types": ["action", "sports", "dynamic_scene"]
+      }
+    },
+    "semanticizer": {
+      "enabled": true,
+      "include_in_semantic_text": true,
+      "default_weight": 1.0,
+      "prompt_rules": [
+        "Use optical-flow attributes.pair_hints as the primary evidence source for motion around the frame.",
+        "Interpret flow levels as temporal change strength near this frame, not as semantic importance or action category by itself.",
+        "Explain whether the frame appears relatively static or motion-heavy only when supported by the provided pair hints."
+      ]
+    },
+    "value_scoring": {
+      "enabled": true,
+      "allow_focus": true,
+      "score_rules": [
+        "Reward frames when optical-flow evidence indicates a meaningful transition, interaction moment, or visible state change near the frame.",
+        "Give higher value when motion evidence helps distinguish this frame from static or redundant nearby frames and makes the step or event easier to understand.",
+        "Do not reward motion magnitude by itself; low, medium, or high flow matters only when it contributes useful temporal understanding for this shot."
+      ]
+    }
+  },
+  "omniparser": {
+    "enabled": true,
+    "display_name": "OmniParser",
+    "purpose": "Parse GUI screenshots into structured UI elements, captions, and interactable regions.",
+    "returns": ["parsed UI elements", "element captions", "interactable region hints", "summary"],
+    "use_for": ["GUI understanding", "screen state recovery", "software demo interpretation"],
+    "scenes": ["screen recordings", "software demos", "desktop UI", "browser UI"],
+    "adapter": {
+      "class_path": "executor.tools.omniparser_tool:OmniParserToolAdapter"
+    },
+    "resources": ["omniparser"],
+    "planner": {
+      "priority": 0.95,
+      "max_per_chapter": 2,
+      "max_per_shot": 1,
+      "default_roles": ["screen_demo", "software_demo", "desktop_ui", "browser_ui"],
+      "default_conditions": {
+        "text_density_gte": 0.2
+      }
+    },
+    "semanticizer": {
+      "enabled": true,
+      "include_in_semantic_text": true,
+      "default_weight": 1.15,
+      "prompt_rules": [
+        "Use OmniParser attributes.captions and evidence.elements as the primary evidence for GUI structure and element meaning.",
+        "Prefer describing actionable or state-revealing UI elements instead of repeating every low-level label.",
+        "Treat interactable_count and bounding boxes as supporting evidence, not as meaning by themselves."
+      ]
+    },
+    "value_scoring": {
+      "enabled": true,
+      "allow_focus": true,
+      "score_rules": [
+        "Reward frames where OmniParser reveals actionable UI structure such as buttons, menus, form fields, toggles, tabs, or clear application state.",
+        "Give higher value when parsed elements are specific and materially improve understanding of what the interface allows or currently shows.",
+        "Do not reward dense but uninformative UI clutter unless the parsed elements clearly expose task-relevant state or interaction targets."
+      ]
+    }
+  }
+}

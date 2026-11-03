@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying VidUEU paper once its final bibliographic record is available."
+title: "VidUEU-Agent"
+type: software
+version: 0.1.0
+authors:
+  - name: "VidUEU contributors"

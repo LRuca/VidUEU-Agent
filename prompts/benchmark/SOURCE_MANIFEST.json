@@ -1,0 +1,32 @@
+{
+  "MMDU": {
+    "reference_file": "mmdu_score.py",
+    "reference_sha256": "3fd39b8708823d80a152aa33a560d3d9150f38dd4dc2e518d12652234e3a49b7",
+    "prompt_sha256": "452e5d3132bc29575a152e62dfdf8952b712257ed121d1d75f35ac7161fef99c",
+    "constants": [
+      "meta_prompt"
+    ]
+  },
+  "GEdit-Bench-En": {
+    "reference_file": "gedit_prompts.py",
+    "reference_sha256": "010234af186eb0a70fcb99047cd32ad1da01bed59ca1a95a01335426417cf838",
+    "prompt_sha256": "0f198c34f4f5786e3257b79137a309527158d29141c31f3ba03b24db35311b01",
+    "constants": [
+      "_context_no_delimit",
+      "_prompts_0shot_two_image_edit_rule",
+      "_prompts_0shot_tie_rule_SC",
+      "_prompts_0shot_rule_PQ"
+    ]
+  },
+  "WEAVEbench": {
+    "reference_file": "weave_prompts.py",
+    "reference_sha256": "687738bab52ea35b9c4360e0df3807974449dd6141b1a3c847a5551142bfdfa3",
+    "prompt_sha256": "11e96199ce232d1490d4b6fad7b9e7138fe9151967737af6559f155de24677d0",
+    "constants": [
+      "prompt_keypoint_checklist",
+      "prompt_visual_consistency",
+      "prompt_image_quality",
+      "prompt_txt_acc"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+# Two-round smoke loop with persistent asynchronous training/evaluation jobs.
+# No Bagel weights are loaded and no real optimizer step is executed.
+iteration:
+  enabled: true
+loop:
+  enabled: true
+  rounds: 2
+  target_train_samples: 10000
+  actual_sample_cap: 3
+  seed: 20261018
+  resume: true
+  candidate_pool: examples/iteration_candidates.jsonl
+  output_root: outputs/iteration_smoke_simulator
+  reflection_backend: fixture
+  trainer_backend: smoke_simulator
+  evaluator_backend: smoke_simulator
+  generation_backend: candidate_pool
+
+smoke:
+  train_duration_s: 0.15
+  eval_duration_s: 0.10
+  poll_interval_s: 0.02
+  timeout_s: 30
+  deterministic_seed: 20261018
+
+trainer:
+  backend: smoke_simulator
+  model_name: BAGEL-7B-MoT
+  init_checkpoint: /path/to/bagel-checkpoint
+  epochs: 1
+  load_checkpoint: false
+
+evaluator:
+  backend: smoke_simulator
+
+reflection:
+  backend: fixture

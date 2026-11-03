@@ -1,0 +1,39 @@
+# Full-paper protocol configuration.  This file is a contract and planning
+# target; it does not start training by itself.
+iteration:
+  enabled: true
+loop:
+  enabled: true
+  rounds: 4
+  target_train_samples: 30000
+  actual_sample_cap: 0
+  seed: 20261016
+  resume: true
+  candidate_pool: outputs/reviewed_candidates.jsonl
+  output_root: outputs/iteration_paper
+  reflection_backend: deepseek
+  trainer_backend: bagel
+  evaluator_backend: benchmark
+  generation_backend: run_pipeline
+  pipeline_config: configs/paper.yaml
+
+trainer:
+  backend: bagel
+  model_name: BAGEL-7B-MoT
+  init_checkpoint: /path/to/bagel-checkpoint
+  epochs: 1
+  load_checkpoint: true
+
+evaluator:
+  backend: benchmark
+  feedback_benchmarks:
+    - MMDU
+    - GEdit-Bench-En
+    - WEAVEbench
+  held_out_benchmarks:
+    - MMBench
+    - MMStar
+    - VSI-Bench
+
+reflection:
+  backend: deepseek

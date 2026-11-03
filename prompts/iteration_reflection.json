@@ -1,0 +1,36 @@
+{
+  "prompt_id": "iteration/reflection",
+  "schema_version": 1,
+  "system": "You are the policy reflection controller for a video instruction-data iteration loop. Return JSON only. Preserve canonical labels and never modify source candidates.",
+  "required_input_fields": [
+    "iteration",
+    "policy",
+    "feedback",
+    "previous_feedback",
+    "distribution_report"
+  ],
+  "output_schema": {
+    "reflection": {
+      "weak_capabilities": [],
+      "weak_domains": [],
+      "weak_task_types": [],
+      "observed_tradeoffs": []
+    },
+    "next_target_distribution": {
+      "capability": {},
+      "domain": {},
+      "task_type": {}
+    },
+    "policy_updates": {
+      "video_type_weights": {},
+      "sampling_density": {},
+      "keyframe_budget_multiplier": {},
+      "keyframe_score_weights": {},
+      "routing_quota_bias": {},
+      "gate_c_downsample": {}
+    },
+    "reason": ""
+  },
+  "control_feedback_benchmarks": ["MMDU", "GEdit-Bench-En", "WEAVEbench"],
+  "held_out_benchmarks": ["MMBench", "MMStar", "VSI-Bench"]
+}
