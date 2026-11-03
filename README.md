@@ -1,4 +1,4 @@
-# VidUEU-Agent
+# VidUEU-Agent: A Data-Curation Agent for Multimodal Understanding, Editing, and Unified Tasks.
 
 <p align="center">
   <strong>An agent pipeline for constructing evidence-grounded multimodal instruction data from videos.</strong>
@@ -15,14 +15,13 @@
        width="95%">
 </p>
 
-VidUEU-Agent converts raw videos into structured metadata and multimodal
-instruction data for understanding, editing, and unified tasks. The pipeline
-combines global perception, keyframe mining, metadata construction, and
-instruction data synthesis with evidence and provenance tracking.
+
+
+
 
 ## Table of Contents
 
-- [VidUEU-Agent](#vidueu-agent)
+- [VidUEU-Agent: A Data-Curation Agent for Multimodal Understanding, Editing, and Unified Tasks.](#vidueu-agent-a-data-curation-agent-for-multimodal-understanding-editing-and-unified-tasks)
   - [Table of Contents](#table-of-contents)
   - [Repository Structure](#repository-structure)
   - [Installation](#installation)
@@ -68,24 +67,25 @@ git clone https://github.com/LRuca/VidUEU-Agent.git
 cd VidUEU-Agent
 ```
 
-Install the pipeline and OmniParser environments and their model weights:
+Install the base pipeline，use:
 
 ```bash
 bash deploy.sh
 ```
 
-Run from the cloned repository root. The host needs Python 3.10/3.12 with
-venv, Git, FFmpeg, and tmux. Deployment creates two isolated environments under
-`environments/`, downloads pinned assets into `model/`, and verifies them.
-This default uses an existing vision API and CPU tools; it does not install a
-local VLM server or the BAGEL training environment. To install all profiles
-and their models in one command, use `bash deploy.sh --profile all` (requires
-an NVIDIA driver, compatible CUDA toolkit and C++ compiler). Auto-iteration
-needs BAGEL: install it with `bash deploy.sh --profile bagel` if you used the
-default pipeline-only deployment. `--profile all` also installs the dev profile.
-It does not start training or use API credits. Benchmark datasets and judge
-credentials are configured below. See `docs/installation.md` for mirrors
-and custom installation paths.
+
+Auto-iteration needs BAGEL: install it with
+```bash
+bash deploy.sh --profile bagel
+```
+
+To install all profiles and their models in one command, use :
+
+```bash
+bash deploy.sh --profile all
+```
+
+Benchmark datasets and judge credentials are configured below. See `docs/installation.md` for mirrors and custom installation paths.
 
 
 ## Run the Pipeline
@@ -140,33 +140,19 @@ Edit these fields in `iteration.local.yaml`:
 | `bagel.total_steps`, `bagel.gradient_accumulation_steps` | Optimizer budget and gradient accumulation |
 | `benchmark.commands` | Replace the marked paths/case IDs with your fixed benchmark subsets, media, adapters, and prompt/decoding definitions |
 
-Keep the default model, vendor, and interpreter paths after installing the
-`bagel` profile or using `bash deploy.sh --profile all`.
+
 The example uses real BAGEL training, benchmark evaluation, and DeepSeek
 reflection. Provide judge credentials through environment variables/key files
 used by your adapters; do not embed keys in command arguments.
 The three benchmark entries are MMDU, GEdit-Bench-En, and WEAVEbench.
 Their adapter result contract is documented in `docs/iteration.md`.
 
-By default, `loop.generation_backend: candidate_pool` selects from existing
-data. To generate fresh data per round, change it to `run_pipeline` and add
-`loop.pipeline_input: /path/to/videos`; keep `loop.pipeline_config` pointing
-to the configured pipeline YAML. `loop.actual_sample_cap: 0` means no
-additional selection cap.
-
-Once the paths, benchmarks, endpoints, and credentials are configured, start
-the loop with one command:
+Start the loop with one command:
 
 ```bash
 bash scripts/run_iteration.sh --config iteration.local.yaml
 ```
 
-The loop trains, evaluates, reflects, and saves resumable results; rerun the
-same command to resume. It does not automatically start a final scale run.
-In the last `iteration_XX/` directory, `reflection.json → next_policy`
-contains the updated distribution and controls; `config_overlay.json`
-contains the corresponding overlay. These are the basis for a separate scale
-run. `policy.json` records the policy used in that round.
 
 ## Export
 
@@ -180,11 +166,6 @@ Export generated data and referenced images with one command:
   --destination outputs/package-001
 ```
 
-The export preserves metadata, provenance, source references, and task-specific
-records while copying referenced images into the package and rewriting paths to
-package-relative locations.
-
-Export creates a separate package and leaves the source run intact.
 
 ## Outputs and Data Format
 
@@ -193,9 +174,6 @@ Export packages contain `understanding.jsonl`, `edit.jsonl`, `unify.jsonl`,
 Image paths are relative to the package root.
 
 ### Metadata
-
-The appendix metadata fields are shown as a record below. Placeholder values
-describe the schema; JSONL stores one complete record per line.
 
 ```text
 {
@@ -253,9 +231,6 @@ describe the schema; JSONL stores one complete record per line.
 ```
 
 ### Instruction Data
-
-The following templates are copied from the appendix. Angle brackets and
-ellipses denote schema placeholders, not literal JSONL values.
 
 #### Understanding
 
@@ -605,12 +580,7 @@ ellipses denote schema placeholders, not literal JSONL values.
 
 ## Citation and License
 
-Original project code is licensed under [Apache-2.0](LICENSE). BAGEL retains
-its Apache-2.0 notices. YOLO and OmniParser's YOLOv8 detector retain AGPL-3.0;
-OmniParser repository code and caption weights have separate licenses. See
-[NOTICE.md](NOTICE.md) for component attribution and distribution obligations.
-The paper citation below is provisional until the arXiv release.
-
+Original project code is licensed under [Apache-2.0](LICENSE).
 If you use VidUEU-Agent or VidUEU data, please cite:
 
 ```bibtex
