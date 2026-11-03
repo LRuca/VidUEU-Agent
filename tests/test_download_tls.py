@@ -49,6 +49,7 @@ def test_url_download_passes_verified_context_and_checks_hash(tmp_path, monkeypa
 
     def response(url, *, timeout, context):
         assert timeout == 600
+        assert url.get_header("User-agent") == "VidUEU-Downloader/0.1"
         assert context.verify_mode == ssl.CERT_REQUIRED
         assert context.check_hostname is True
         return io.BytesIO(data)

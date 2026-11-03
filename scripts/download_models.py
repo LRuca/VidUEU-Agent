@@ -136,6 +136,11 @@ def urlopen_with_308(request, *, timeout, context):
     current = request
     for _ in range(5):
         try:
+            if isinstance(current, urllib.request.Request):
+                if not current.has_header("User-agent"):
+                    current.add_header("User-Agent", "VidUEU-Downloader/0.1")
+            else:
+                current = urllib.request.Request(current, headers={"User-Agent": "VidUEU-Downloader/0.1"})
             return urllib.request.urlopen(current, timeout=timeout, context=context)
         except urllib.error.HTTPError as exc:
             if exc.code != 308 or not exc.headers.get("Location"):
