@@ -223,6 +223,12 @@ def build_command(a):
             command += ["--reasoning-parser", a.reasoning_parser]
         if a.media_root:
             command += ["--allowed-local-media-path", str(Path(a.media_root).resolve())]
+        if a.max_model_len is not None:
+            command += ["--max-model-len", str(a.max_model_len)]
+        if a.max_num_seqs is not None:
+            command += ["--max-num-seqs", str(a.max_num_seqs)]
+        if a.enforce_eager:
+            command.append("--enforce-eager")
         audit = {"model": str(model), "port": port, "served_model_name": a.served_model_name}
     return command, env, audit
 
@@ -349,6 +355,9 @@ def main(argv=None):
     p.add_argument("--reasoning-parser", default="qwen3", help="Pass an empty string to disable")
     p.add_argument("--media-root")
     p.add_argument("--gpu-memory-utilization", type=float, default=0.85)
+    p.add_argument("--max-model-len", type=int, help="Explicit vLLM context limit for available GPU memory")
+    p.add_argument("--max-num-seqs", type=int, help="Explicit vLLM concurrent sequence limit")
+    p.add_argument("--enforce-eager", action="store_true", help="Disable vLLM CUDA graphs for a small smoke run")
     p.add_argument("--ready-timeout", type=int, default=600)
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--token", help=argparse.SUPPRESS)
@@ -360,6 +369,8 @@ def main(argv=None):
         p.error("Port must be between 1024 and 65535")
     if not 0 < a.gpu_memory_utilization < 1:
         p.error("GPU memory utilization must be between 0 and 1")
+    if any(value is not None and value < 1 for value in (a.max_model_len, a.max_num_seqs)):
+        p.error("vLLM context and sequence limits must be positive")
     if a.action == "status":
         print(json.dumps(status(a.run_dir, a.kind), indent=2))
         return 0

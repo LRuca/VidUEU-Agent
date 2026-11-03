@@ -13,6 +13,19 @@ from scripts import download_models as assets
 from vidueu_config import load_config, redact
 
 
+@pytest.mark.skipif(os.name != "posix", reason="Linux run manager")
+def test_vllm_dry_run_preserves_explicit_smoke_limits(tmp_path, capsys):
+    from scripts import manage_run
+    assert manage_run.main(['start','--kind','vllm','--run-dir',str(tmp_path/'run'),
+        '--gpus','2','--model-path',str(tmp_path/'model'),'--max-model-len','16384',
+        '--max-num-seqs','1','--enforce-eager','--dry-run'])==0
+    command=json.loads(capsys.readouterr().out)['command']
+    assert command[command.index('--max-model-len')+1]=='16384'
+    assert command[command.index('--max-num-seqs')+1]=='1'
+    assert '--enforce-eager' in command
+    assert not (tmp_path/'run').exists()
+
+
 def test_config_substitutes_scalars_without_changing_yaml_structure(tmp_path):
     path = tmp_path / "config.yaml"
     path.write_text('models:\n  qwen_llm:\n    api:\n      api_key: ${TEST_KEY}\nvalue: $TEST_VALUE\n')

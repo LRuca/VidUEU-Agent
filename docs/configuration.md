@@ -72,7 +72,7 @@ Managed run refuses force_overwrite. Resume skips completed videos; incomplete
 videos may rerun and replace their matching task rows through the existing resume
 logic. Use a fresh output to isolate an experiment. Start/stop never cleans
 source videos, images, temp or logs. See [outputs](outputs.md).
-# Vision API authentication and protocol
+## Vision API authentication and protocol
 
 The default local Qwen/vLLM endpoint may run without authentication. Doctor
 queries `/v1/models` without requiring an artificial key and reports the real
@@ -86,4 +86,9 @@ vision API, set `vlm.wire_profile: openai` and, if supported by the provider,
 `vlm.reasoning_effort: low`. This sends `max_completion_tokens` and the chosen
 reasoning effort without vLLM-only sampling/template parameters. Explicit
 LLM reasoning effort no longer inherits the default `thinking: disabled`.
+
+For a small local GPU smoke, the managed vLLM launcher accepts explicit
+`--max-model-len 16384 --max-num-seqs 1 --enforce-eager`. Context and sequence
+limits must be positive. These options affect the owned vLLM service only;
+ordinary launches retain vLLM defaults when the options are omitted.
 
