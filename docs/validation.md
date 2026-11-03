@@ -1,5 +1,30 @@
 # CPU/offline acceptance (2026-10-21)
 
+## Fresh release clone acceptance (2026-11-03)
+
+A standalone release Git repository was cloned into a new Linux directory.
+Its new pipeline/dev environments passed 538 regression tests, wheel installation
+outside the checkout, CPU smoke, and two simulated iteration rounds. The
+iteration check used three samples per round and zero optimizer steps.
+All thirteen managed model/code assets downloaded during this acceptance were
+verified. Real CPU OCR and the complete OmniParser bridge passed, including
+no-OCR-box and empty-detection cases.
+
+A default-quality real-video run completed with zero records because T2
+retained no frames. A separate, explicitly authorized test disabled only the
+GateB model-stage filter and used real remote text/vision APIs and real local
+tools. It completed T1-T4 with four understanding records and one metadata
+record. Export dry-run, actual export, full image decoding and hash verification
+passed for nine referenced images, including verification after relocation.
+Source JSONL hashes were unchanged. This test produced no edit or unify records
+and does not establish default-quality acceptance or local vLLM inference.
+DeepSeek returned repeated HTTP 503 errors in an earlier attempt; the completed
+private acceptance used an authorized alternative text API.
+
+Full five-profile deployment validation is still in progress. Successful
+pipeline/tool checks above must not be read as a completed BAGEL/vLLM installation
+matrix or real training/benchmark acceptance.
+
 ## Release fixes checked on 2026-11-03
 
 The current full offline regression passed 523 tests, with 11 platform-dependent
