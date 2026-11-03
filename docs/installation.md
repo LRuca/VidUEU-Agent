@@ -38,6 +38,13 @@ the model/environment roots, use `--config` and the generated launcher; it
 records the actual interpreters and model root, so `VIDUEU_PYTHON` is not
 required.
 
+`bash deploy.sh --profile all --wheelhouse /path/to/verified-wheels` installs
+environment packages from a prepared local wheelhouse (including compatible
+build dependencies and the flash-attn source archive or wheel for BAGEL).
+Pinned model assets are still downloaded/verified independently. This avoids
+repeated large wheel transfers on unreliable networks; the wheelhouse must
+cover the selected Python/platform versions. It is not a copy of a venv.
+
 Successful environments receive a deployment receipt; reruns check their
 dependency recipe, runtime imports, and `pip check` before reusing them. Interrupted environments created
 by this installer have a separate setup receipt and resume completed command

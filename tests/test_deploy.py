@@ -198,6 +198,17 @@ def test_all_profiles_include_training_and_local_vision_assets_without_writes(tm
     assert not list(tmp_path.iterdir())
 
 
+def test_deploy_offline_wheelhouse_reaches_every_setup_profile(tmp_path, capsys):
+    house=tmp_path/'wheels'
+    deploy.main(['--profile','all','--dry-run','--wheelhouse',str(house),
+                 '--env-prefix',str(tmp_path/'envs'),'--model-root',str(tmp_path/'models')])
+    plan=json.loads(capsys.readouterr().out)
+    for item in plan['environments']:
+        command=item['argv']
+        assert command[command.index('--wheelhouse')+1]==str(house)
+    assert not list(tmp_path.iterdir())
+
+
 @pytest.mark.parametrize("tools,profiles", [(["ocr"], ["pipeline"]),
                                           (["ocr", "omniparser"], ["pipeline", "omniparser"])])
 def test_config_drives_dependencies_even_with_explicit_pipeline(tmp_path, capsys, tools, profiles):

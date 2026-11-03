@@ -269,6 +269,10 @@ def plan(args):
             if asset not in assets:
                 assets.append(asset)
     download_profile = next((p for p in ("pipeline", "omniparser", "bagel", "vllm", "dev") if p in profiles), profiles[0])
+    if getattr(args, "wheelhouse", None):
+        wheelhouse = str(args.wheelhouse.expanduser().absolute())
+        for item in commands:
+            item["argv"] += ["--wheelhouse", wheelhouse]
     python = str(prefix / f"{download_profile}/bin/python")
     download = [python, str(ROOT / "scripts/download_models.py"), "--model-root", str(model_root),
                 "--only", *assets]
@@ -293,6 +297,7 @@ def main(argv=None):
     parser.add_argument("--python310")
     parser.add_argument("--python312")
     parser.add_argument("--index-url")
+    parser.add_argument("--wheelhouse", type=Path, help="Verified offline packages for every selected environment")
     parser.add_argument("--endpoint", help="Optional Hugging Face mirror; Git/URL downloads keep official origins")
     parser.add_argument("--work-dir", type=Path, default=ROOT / ".deploy")
     parser.add_argument("--min-free-gib", type=float, default=20, help="Minimum free-space reserve on each target filesystem")
