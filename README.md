@@ -61,6 +61,13 @@ docs/                   Configuration, output, and operation guides
 
 ## Installation
 
+Clone the repository and enter it before running deployment:
+
+```bash
+git clone https://github.com/LRuca/VidUEU-Agent.git
+cd VidUEU-Agent
+```
+
 Install the pipeline and OmniParser environments and their model weights:
 
 ```bash
