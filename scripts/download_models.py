@@ -296,6 +296,8 @@ def download(root, item, endpoint=None, *, timeout=None):
         for entry in expected_files:
             path = safe_path(target, entry.rfilename)
             path.parent.mkdir(parents=True, exist_ok=True)
+            print(json.dumps({"id": item["id"], "file": entry.rfilename,
+                              "status": "fetching", "bytes": entry.size}), flush=True)
             fetch_url(hf_hub_url(item["repo_id"], entry.rfilename, revision=item["revision"], endpoint=endpoint),
                       path,
                       entry.lfs.sha256 if entry.lfs else entry.blob_id,
