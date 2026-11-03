@@ -1,0 +1,21 @@
+multiturn_citation_json:
+  dataset_names:
+  - your_citation_dialogue
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 768
+    min_image_size: 384
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 560
+    min_image_size: 336
+    max_pixels: 589_824
+  is_mandatory: false
+  shuffle_lines: true
+  shuffle_seed: 0
+  include_turn_in_context: false
+  strict_evidence: true
+  max_warnings: 20
+  num_used_data:
+  - 10
+  weight: 1

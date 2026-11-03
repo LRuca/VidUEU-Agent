@@ -1,0 +1,19 @@
+multiturn_jsonl:
+  dataset_names:
+  - unify_weave_uie_select_recall
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 768
+    min_image_size: 378
+    max_pixels: 589_824
+  is_mandatory: true
+  shuffle_lines: true
+  shuffle_seed: 0
+  only_current_turn_images: false
+  num_used_data:
+  - 5108
+  weight: 1

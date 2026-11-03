@@ -6,7 +6,7 @@ __pycache__/
 config.local.yaml
 *.local.yaml
 configs/*.local.*
-data/
+/data/
 outputs/
 logs/
 tmp/
