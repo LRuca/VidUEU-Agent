@@ -21,9 +21,19 @@ and does not establish default-quality acceptance or local vLLM inference.
 DeepSeek returned repeated HTTP 503 errors in an earlier attempt; the completed
 private acceptance used an authorized alternative text API.
 
-Full five-profile deployment validation is still in progress. Successful
-pipeline/tool checks above must not be read as a completed BAGEL/vLLM installation
-matrix or real training/benchmark acceptance.
+Full five-profile deployment subsequently completed in another new environment
+prefix, using the prepared wheelhouse and the assets downloaded in this run.
+The actual `deploy.sh --profile all --wheelhouse ...` command completed all
+setup stages, runtime imports, five `pip check` validations, asset hash checks,
+real CPU OCR/OmniParser inference, and generated the config/launcher. The verified
+pipeline environment again passed 538 tests. BAGEL's FlashAttention 2.5.8 was
+built from the hashed source archive against Torch 2.5.1+cu124; the vendored
+training entrypoint's `--help` passed without a GPU. vLLM 0.19.0 imported.
+Package preparation required assisted network retries and missing-wheel downloads;
+this is not evidence of an unattended online install under arbitrary networks.
+A final real API repeat using the verified environment hit the provider's HTTP
+429 account concurrency limit and was stopped, with its evidence retained.
+Local vLLM inference, optimizer steps and real benchmark scores remain untested.
 
 ## Release fixes checked on 2026-11-03
 
