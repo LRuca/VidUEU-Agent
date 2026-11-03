@@ -48,6 +48,8 @@ _repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")
 _ultra_cfg_root = os.path.join(_repo_root, "model", "ultralytics")
 os.makedirs(_ultra_cfg_root, exist_ok=True)
 os.environ.setdefault("YOLO_CONFIG_DIR", _ultra_cfg_root)
+from executor.tasks.ultralytics_compat import disable_runtime_installation
+disable_runtime_installation()
 
 try:
     from ultralytics import YOLO
@@ -56,6 +58,8 @@ except Exception as e:  # 环境里没装也不要在 import 阶段直接崩
     _yolo_import_error = e
 else:
     _yolo_import_error = None
+finally:
+    disable_runtime_installation()
 
 
 # ------------------------ 小工具函数 ------------------------

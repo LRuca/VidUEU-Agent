@@ -26,7 +26,10 @@ def inspect(profile, model_root=None, *, inference=False, device="cpu"):
         from transformers import AutoProcessor
         if profile == "omniparser":
             import supervision
+            from executor.tasks.ultralytics_compat import disable_runtime_installation
+            disable_runtime_installation()
             from ultralytics import YOLO
+            disable_runtime_installation()
             from executor.tasks.omniparser_bridge import _load_local_florence2
     elif profile == "bagel":
         import torch

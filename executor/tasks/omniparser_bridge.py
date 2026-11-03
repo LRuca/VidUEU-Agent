@@ -21,12 +21,15 @@ _STATE: Dict[str, Any] = {"key": None, "model": None, "caption": None}
 
 
 def _import_official_utils(repo_root: str):
+    from executor.tasks.ultralytics_compat import disable_runtime_installation
+    disable_runtime_installation()
     repo_root = os.path.abspath(repo_root)
     if repo_root not in sys.path:
         sys.path.insert(0, repo_root)
     try:
         from executor.tasks.omniparser_compat import load_official_utils
         module = load_official_utils(repo_root)
+        disable_runtime_installation()
     except Exception as exc:  # pragma: no cover - runtime import depends on external repo
         raise RuntimeError(
             f"Failed to import OmniParser official utils from repo_root={repo_root}: {exc}"
