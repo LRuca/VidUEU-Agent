@@ -2,3 +2,10 @@
 # Build tools before installing flash-attn (setup adds it as a separate step).
 packaging>=23
 ninja
+# These integrations must remain compatible with the pinned HF Hub / NumPy
+# versions in the vendored training snapshot.
+gradio==5.20.1
+wandb==0.19.8
+accelerate==1.4.0
+bitsandbytes==0.45.3
+triton==3.1.0 ; sys_platform == 'linux'
