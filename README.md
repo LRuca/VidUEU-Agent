@@ -5,8 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2611.04418">Paper</a> |
-  <a href="https://huggingface.co/datasets/Lruca/VidUEU100k">Dataset</a>
+  <a href="https://arxiv.org/abs/2611.04418">Paper</a> | <a href="https://huggingface.co/datasets/Lruca/VidUEU100k">Dataset</a>
 </p>
 
 <p align="center">
