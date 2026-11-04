@@ -584,11 +584,13 @@ Original project code is licensed under [Apache-2.0](LICENSE).
 If you use VidUEU-Agent or VidUEU data, please cite:
 
 ```bibtex
-@inproceedings{vidueuagent,
-  title     = {VidUEU-Agent: A Data-Curation Agent for Multimodal Understanding,
-               Editing, and Unified Tasks},
-  author    = {Anonymous Authors},
-  booktitle = {NeurIPS},
-  year      = {2026}
+@misc{ru2026vidueuagentdatacurationagentmultimodal,
+      title={VidUEU-Agent: A Data-Curation Agent for Multimodal Understanding, Editing, and Unified Tasks},
+      author={Tengju Ru and Weitong Lian and Zecong Tang and Lingyi Meng and Haoran Li and Zhejun Cui and Yichen Zhu and Hangshuo Cao and Qi Kang and Yechi Liu and Kaixuan Wang and Yu-Jie Yuan and Chunwei Wang and Yu Zhang and Bo Dai},
+      year={2026},
+      eprint={2611.04418},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2611.04418},
 }
 ```
